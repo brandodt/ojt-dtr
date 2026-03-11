@@ -72,7 +72,7 @@ export default function Login({ onSwitchToRegister }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-green-700 hover:bg-green-800 text-white font-semibold py-2 rounded-lg transition-colors disabled:opacity-60"
+            className="w-full bg-green-700 hover:bg-green-800 active:bg-green-900 text-white font-semibold py-2 rounded-lg transition-colors disabled:opacity-60"
           >
             {loading ? 'Signing in…' : 'Sign In'}
           </button>

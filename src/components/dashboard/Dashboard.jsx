@@ -15,19 +15,21 @@ export default function Dashboard() {
     <div className="min-h-screen bg-green-50">
       {/* Top Nav */}
       <header className="bg-green-800 text-white shadow-lg">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/cvsu-logo.png" alt="CvSU" className="h-10 w-auto" />
-            <div>
-              <p className="font-bold text-sm leading-tight">CAVITE STATE UNIVERSITY</p>
-              <p className="text-green-300 text-xs">Imus Campus — OJT DTR System</p>
+        <div className="max-w-5xl mx-auto px-3 py-2 flex items-center justify-between gap-2">
+          {/* Left: logos + title */}
+          <div className="flex items-center gap-2 min-w-0">
+            <img src="/cvsu-logo.png" alt="CvSU" className="h-9 w-auto shrink-0" />
+            <div className="min-w-0">
+              <p className="font-bold text-xs sm:text-sm leading-tight truncate">CAVITE STATE UNIVERSITY</p>
+              <p className="text-green-300 text-[10px] sm:text-xs truncate">Imus Campus — OJT DTR System</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <img src="/bagong-pilipinas-logo.png" alt="Bagong Pilipinas" className="h-10 w-auto" />
+          {/* Right: bagong pilipinas + sign out */}
+          <div className="flex items-center gap-2 shrink-0">
+            <img src="/bagong-pilipinas-logo.png" alt="Bagong Pilipinas" className="h-9 w-auto" />
             <button
               onClick={signOut}
-              className="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+              className="bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
             >
               Sign Out
             </button>
@@ -35,7 +37,7 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-6 space-y-5">
+      <main className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-5">
         {/* Student Info Card */}
         <div className="bg-white rounded-xl shadow p-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
           <div>

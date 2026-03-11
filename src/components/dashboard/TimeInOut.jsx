@@ -169,13 +169,13 @@ export default function TimeInOut({ onRecordSaved }) {
       <div className="flex gap-2 mb-5">
         <button
           onClick={() => setMode('today')}
-          className={`flex-1 py-2 rounded-lg font-semibold text-sm transition-colors ${mode === 'today' ? 'bg-green-700 text-white' : 'bg-green-50 text-green-800 hover:bg-green-100'}`}
+          className={`flex-1 py-2 rounded-lg font-semibold text-sm transition-colors ${mode === 'today' ? 'bg-green-700 text-white active:bg-green-800' : 'bg-green-50 text-green-800 hover:bg-green-100 active:bg-green-200'}`}
         >
           Today&apos;s Attendance
         </button>
         <button
           onClick={() => setMode('past')}
-          className={`flex-1 py-2 rounded-lg font-semibold text-sm transition-colors ${mode === 'past' ? 'bg-yellow-600 text-white' : 'bg-yellow-50 text-yellow-800 hover:bg-yellow-100'}`}
+          className={`flex-1 py-2 rounded-lg font-semibold text-sm transition-colors ${mode === 'past' ? 'bg-yellow-600 text-white active:bg-yellow-700' : 'bg-yellow-50 text-yellow-800 hover:bg-yellow-100 active:bg-yellow-200'}`}
         >
           Encode Past Date
         </button>
@@ -206,14 +206,14 @@ export default function TimeInOut({ onRecordSaved }) {
             <button
               onClick={handleTimeIn}
               disabled={loading}
-              className="bg-green-600 hover:bg-green-700 text-white font-bold py-6 rounded-xl text-lg transition-colors disabled:opacity-60 shadow flex items-center justify-center gap-2"
+              className="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold py-6 rounded-xl text-lg transition-colors disabled:opacity-60 shadow flex items-center justify-center gap-2"
             >
               <LogIn size={20} /> TIME IN
             </button>
             <button
               onClick={handleTimeOut}
               disabled={loading}
-              className="bg-red-600 hover:bg-red-700 text-white font-bold py-6 rounded-xl text-lg transition-colors disabled:opacity-60 shadow flex items-center justify-center gap-2"
+              className="bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold py-6 rounded-xl text-lg transition-colors disabled:opacity-60 shadow flex items-center justify-center gap-2"
             >
               <LogOut size={20} /> TIME OUT
             </button>
@@ -310,7 +310,7 @@ export default function TimeInOut({ onRecordSaved }) {
           <button
             type="button"
             onClick={addRow}
-            className="w-full border-2 border-dashed border-yellow-400 text-yellow-700 hover:bg-yellow-50 text-sm font-semibold py-2 rounded-lg transition-colors flex items-center justify-center gap-1"
+            className="w-full border-2 border-dashed border-yellow-400 text-yellow-700 hover:bg-yellow-50 active:bg-yellow-100 text-sm font-semibold py-2 rounded-lg transition-colors flex items-center justify-center gap-1"
           >
             <Plus size={15} /> Add Another Date
           </button>
@@ -318,7 +318,7 @@ export default function TimeInOut({ onRecordSaved }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 rounded-lg transition-colors disabled:opacity-60"
+            className="w-full bg-yellow-600 hover:bg-yellow-700 active:bg-yellow-800 text-white font-semibold py-2 rounded-lg transition-colors disabled:opacity-60"
           >
             {loading ? 'Saving...' : `Save ${rows.length} Record${rows.length > 1 ? 's' : ''}`}
           </button>
