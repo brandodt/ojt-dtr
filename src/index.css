@@ -7,6 +7,14 @@ button {
   -webkit-appearance: none;
   appearance: none;
 }
+
+/* Fix iOS Safari stripping input/select backgrounds */
+input, select, textarea {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #ffffff;
+  color: #111827;
+}
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;

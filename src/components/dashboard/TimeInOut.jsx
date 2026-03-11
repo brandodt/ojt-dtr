@@ -240,7 +240,7 @@ export default function TimeInOut({ onRecordSaved }) {
                       max={yesterday}
                       onChange={e => updateRow(i, 'date', e.target.value)}
                       required
-                      className="w-full border border-green-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="w-full bg-white text-gray-900 border border-green-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                   </div>
                   <div>
@@ -248,7 +248,7 @@ export default function TimeInOut({ onRecordSaved }) {
                     <select
                       value={row.type}
                       onChange={e => updateRow(i, 'type', e.target.value)}
-                      className="border border-green-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                      className="bg-white text-gray-900 border border-green-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                     >
                       <option value="regular">Regular Duty</option>
                       <option value="absent">Absent</option>
@@ -266,7 +266,7 @@ export default function TimeInOut({ onRecordSaved }) {
 
                 {/* Time In/Out + Schedule (regular only) */}
                 {row.type === 'regular' && (
-                  <div className="grid grid-cols-3 gap-2 items-end">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 items-end">
                     <div>
                       <label className="block text-xs font-medium text-green-800 mb-1">Time In</label>
                       <input
@@ -274,7 +274,7 @@ export default function TimeInOut({ onRecordSaved }) {
                         value={row.timeIn}
                         onChange={e => updateRow(i, 'timeIn', e.target.value)}
                         required
-                        className="w-full border border-green-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full bg-white text-gray-900 border border-green-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
                     <div>
@@ -283,15 +283,15 @@ export default function TimeInOut({ onRecordSaved }) {
                         type="time"
                         value={row.timeOut}
                         onChange={e => updateRow(i, 'timeOut', e.target.value)}
-                        className="w-full border border-green-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full bg-white text-gray-900 border border-green-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
-                    <div>
+                    <div className="col-span-2 sm:col-span-1">
                       <label className="block text-xs font-medium text-green-800 mb-1">Schedule</label>
                       <select
                         value={row.schedule}
                         onChange={e => updateRow(i, 'schedule', e.target.value)}
-                        className="w-full border border-green-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                        className="w-full border border-green-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white text-gray-900"
                       >
                         <option value="standard">Standard (auto)</option>
                         <option value="temp_8hr">Temp (8 hrs)</option>
