@@ -9,7 +9,7 @@ button {
 }
 
 /* Fix iOS Safari stripping input/select backgrounds */
-input, select, textarea {
+input:not([type="checkbox"]):not([type="radio"]), select, textarea {
   -webkit-appearance: none;
   appearance: none;
   background-color: #ffffff;
