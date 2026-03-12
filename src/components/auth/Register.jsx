@@ -165,7 +165,7 @@ export default function Register({ onSwitchToLogin }) {
             <label className="block text-xs font-medium text-green-800 mb-1">Student ID</label>
             <input type="text" name="studentId" value={form.studentId} onChange={handleChange} required
               className="w-full border border-green-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="2022-XXXXX" />
+              placeholder="2022XXXXX" />
           </div>
           <div className="reg-field grid grid-cols-2 gap-3">
             <div>
