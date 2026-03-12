@@ -174,14 +174,16 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
                 <tr key={r.id ?? i} className={i % 2 === 0 ? 'bg-white' : 'bg-green-50'}>
                   <td className="border border-gray-300 px-2 py-1 text-center text-gray-400">{i + 1}</td>
                   <td className="border border-gray-300 px-2 py-1 text-center">{formatDate(r.date)}</td>
-                  <td className="border border-gray-300 px-2 py-1 text-center">
-                    {r.record_type === 'absent'
-                      ? <span className="text-red-500 font-bold">ABSENT</span>
-                      : formatTime(r.time_in)}
-                  </td>
-                  <td className="border border-gray-300 px-2 py-1 text-center">
-                    {r.record_type === 'absent' ? '' : formatTime(r.time_out)}
-                  </td>
+                  {r.record_type === 'absent' ? (
+                    <td colSpan={2} className="border border-gray-300 px-2 py-1 text-center">
+                      <span className="text-red-500 font-bold">ABSENT</span>
+                    </td>
+                  ) : (
+                    <>
+                      <td className="border border-gray-300 px-2 py-1 text-center">{formatTime(r.time_in)}</td>
+                      <td className="border border-gray-300 px-2 py-1 text-center">{formatTime(r.time_out)}</td>
+                    </>
+                  )}
                   <td className="border border-gray-300 px-2 py-1 text-center">
                     {r.record_type === 'absent'
                       ? <span className="text-red-400">0</span>
