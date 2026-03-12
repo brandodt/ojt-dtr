@@ -5,6 +5,8 @@ import { Printer } from 'react-feather'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { printDTR } from './PrintDTR'
+import Counter from '../Counter'
+import SplitText from '../SplitText'
 
 function formatTime(t) {
   if (!t) return '—'
@@ -78,7 +80,21 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
   return (
     <div className="bg-white rounded-xl shadow p-5">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-bold text-green-800">Daily Time Record</h3>
+        <h3 className="text-lg font-bold text-green-800">
+          <SplitText
+            text="Daily Time Record"
+            tag="span"
+            className="text-lg font-bold text-green-800"
+            delay={35}
+            duration={0.6}
+            ease="back.out(1.4)"
+            from={{ opacity: 0, y: 20 }}
+            to={{ opacity: 1, y: 0 }}
+            textAlign="left"
+            threshold={0.2}
+            rootMargin="0px"
+          />
+        </h3>
         <button
           ref={printBtnRef}
           onClick={() => {
@@ -93,8 +109,30 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
       {/* Progress bar */}
       <div className="mb-4">
         <div className="flex justify-between text-xs text-green-700 mb-1">
-          <span>{totalHours.toFixed(0)} hrs rendered</span>
-          <span>{remaining.toFixed(0)} hrs remaining of {required}</span>
+          <span className="flex items-center gap-1">
+            <Counter
+              value={Math.round(totalHours)}
+              fontSize={13}
+              gap={1}
+              horizontalPadding={0}
+              borderRadius={0}
+              textColor="#15803d"
+              fontWeight="600"
+            />
+            {' '}hrs rendered
+          </span>
+          <span className="flex items-center gap-1">
+            <Counter
+              value={Math.round(remaining)}
+              fontSize={13}
+              gap={1}
+              horizontalPadding={0}
+              borderRadius={0}
+              textColor="#15803d"
+              fontWeight="600"
+            />
+            {' '}hrs remaining of {required}
+          </span>
         </div>
         <div className="w-full bg-green-100 rounded-full h-3">
           <div
@@ -103,7 +141,18 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
             style={{ width: 0 }}
           />
         </div>
-        <p className="text-xs text-green-700 mt-1 text-right">{percent}% completed</p>
+        <p className="text-xs text-green-700 mt-1 text-right flex items-center justify-end gap-1">
+          <Counter
+            value={percent}
+            fontSize={13}
+            gap={1}
+            horizontalPadding={0}
+            borderRadius={0}
+            textColor="#15803d"
+            fontWeight="600"
+          />
+          % completed
+        </p>
       </div>
 
       {loading ? (
