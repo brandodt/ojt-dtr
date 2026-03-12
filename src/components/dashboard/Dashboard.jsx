@@ -1,14 +1,16 @@
 import { useRef, useState } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { LogOut, Edit2, X, Check } from 'react-feather'
+import { LogOut, Edit2, X, Check, Sun, Moon } from 'react-feather'
 import { useAuth } from '../../context/AuthContext'
+import { useDarkMode } from '../../lib/useDarkMode'
 import Clock from './Clock'
 import TimeInOut from './TimeInOut'
 import DTRTable from './DTRTable'
 
 export default function Dashboard() {
   const { user, profile, signOut } = useAuth()
+  const [isDark, toggleDark] = useDarkMode()
   const [refresh, setRefresh] = useState(0)
 
   const currentYear = new Date().getFullYear()
@@ -31,6 +33,19 @@ export default function Dashboard() {
   const [draftSupervisor, setDraftSupervisor] = useState(supervisor)
   const [draftAY, setDraftAY] = useState(academicYear)
   const [draftSemester, setDraftSemester] = useState(semester)
+
+  const darkToggleRef = useRef()
+
+  function handleToggleDark() {
+    if (darkToggleRef.current) {
+      gsap.fromTo(darkToggleRef.current,
+        { rotate: 0, scale: 1 },
+        { rotate: 360, scale: 1.25, duration: 0.45, ease: 'back.out(1.5)',
+          onComplete: () => gsap.set(darkToggleRef.current, { rotate: 0, scale: 1 }) }
+      )
+    }
+    toggleDark()
+  }
 
   useGSAP(() => {
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
@@ -57,7 +72,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div ref={dashRef} className="min-h-screen bg-green-50">
+    <div ref={dashRef} className="min-h-screen bg-green-50 dark:bg-gray-900 transition-colors duration-300">
       {/* Top Nav */}
       <header className="dash-header bg-green-800 text-white shadow-lg">
         <div className="max-w-5xl mx-auto px-3 py-2 flex items-center justify-between gap-2">
@@ -69,8 +84,17 @@ export default function Dashboard() {
               <p className="text-green-300 text-[10px] sm:text-xs truncate">Imus Campus — OJT DTR System</p>
             </div>
           </div>
-          {/* Right: sign out */}
+          {/* Right: dark mode + sign out */}
           <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleToggleDark}
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              className="flex items-center justify-center w-8 h-8 rounded-lg bg-green-700 hover:bg-green-600 active:bg-green-500 text-white transition-colors"
+            >
+              <span ref={darkToggleRef} className="flex items-center justify-center">
+                {isDark ? <Sun size={15} /> : <Moon size={15} />}
+              </span>
+            </button>
             <button
               ref={signOutBtnRef}
               onClick={() => {
@@ -87,33 +111,33 @@ export default function Dashboard() {
 
       <main className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-5">
         {/* Student Info Card */}
-        <div className="dash-card bg-white rounded-xl shadow p-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+        <div className="dash-card bg-white dark:bg-gray-800 rounded-xl shadow p-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
           <div>
-            <p className="text-xs text-gray-500">Name</p>
-            <p className="font-bold text-green-800">{profile?.full_name || user?.email}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Name</p>
+            <p className="font-bold text-green-800 dark:text-green-400">{profile?.full_name || user?.email}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Student ID</p>
-            <p className="font-semibold text-green-800">{profile?.student_id || '—'}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Student ID</p>
+            <p className="font-semibold text-green-800 dark:text-green-400">{profile?.student_id || '—'}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Program / Course</p>
-            <p className="font-semibold text-green-800">{profile?.program} — {profile?.course_code}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Program / Course</p>
+            <p className="font-semibold text-green-800 dark:text-green-400">{profile?.program} — {profile?.course_code}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Academic Year</p>
-            <p className="font-semibold text-green-800">A.Y. {academicYear} · {semester} Sem</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Academic Year</p>
+            <p className="font-semibold text-green-800 dark:text-green-400">A.Y. {academicYear} · {semester} Sem</p>
           </div>
         </div>
 
         {/* Print DTR Settings Card */}
-        <div className="dash-card bg-white rounded-xl shadow p-4">
+        <div className="dash-card bg-white dark:bg-gray-800 rounded-xl shadow p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-green-800">Print DTR Settings</h3>
+            <h3 className="text-sm font-bold text-green-800 dark:text-green-400">Print DTR Settings</h3>
             {!editing ? (
               <button
                 onClick={openEdit}
-                className="flex items-center gap-1.5 text-xs text-green-700 hover:text-green-900 font-semibold border border-green-300 hover:border-green-600 px-2.5 py-1 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 text-xs text-green-700 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 font-semibold border border-green-300 dark:border-green-700 hover:border-green-600 px-2.5 py-1 rounded-lg transition-colors"
               >
                 <Edit2 size={12} /> Edit
               </button>
@@ -127,7 +151,7 @@ export default function Dashboard() {
                 </button>
                 <button
                   onClick={() => setEditing(false)}
-                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 border border-gray-300 px-2.5 py-1 rounded-lg transition-colors"
+                  className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 border border-gray-300 dark:border-gray-600 px-2.5 py-1 rounded-lg transition-colors"
                 >
                   <X size={12} /> Cancel
                 </button>
@@ -138,44 +162,44 @@ export default function Dashboard() {
           {!editing ? (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
               <div>
-                <p className="text-xs text-gray-500">Supervisor / Head of Agency</p>
-                <p className="font-semibold text-green-800">{supervisor}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Supervisor / Head of Agency</p>
+                <p className="font-semibold text-green-800 dark:text-green-400">{supervisor}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Academic Year</p>
-                <p className="font-semibold text-green-800">{academicYear}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Academic Year</p>
+                <p className="font-semibold text-green-800 dark:text-green-400">{academicYear}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Semester</p>
-                <p className="font-semibold text-green-800">{semester} Semester</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Semester</p>
+                <p className="font-semibold text-green-800 dark:text-green-400">{semester} Semester</p>
               </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Supervisor / Head of Agency</label>
+                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Supervisor / Head of Agency</label>
                 <input
                   type="text"
                   value={draftSupervisor}
                   onChange={e => setDraftSupervisor(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Academic Year (e.g. 2025 - 2026)</label>
+                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Academic Year (e.g. 2025 - 2026)</label>
                 <input
                   type="text"
                   value={draftAY}
                   onChange={e => setDraftAY(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Semester</label>
+                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Semester</label>
                 <select
                   value={draftSemester}
                   onChange={e => setDraftSemester(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
                   <option value="1st">1st Semester</option>
                   <option value="2nd">2nd Semester</option>

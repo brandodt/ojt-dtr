@@ -9,11 +9,16 @@ button {
 }
 
 /* Fix iOS Safari stripping input/select backgrounds */
-input:not([type="checkbox"]):not([type="radio"]), select, textarea {
-  -webkit-appearance: none;
-  appearance: none;
-  background-color: #ffffff;
-  color: #111827;
+/* @layer base ensures Tailwind utilities always override this */
+@layer base {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: #ffffff;
+    color: #111827;
+  }
 }
 button:focus,
 button:focus-visible {

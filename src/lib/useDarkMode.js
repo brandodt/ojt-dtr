@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 
 export function useDarkMode() {
-  const [isDark, setIsDark] = useState(() =>
-    document.documentElement.classList.contains('dark')
-  )
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem('theme')
+    if (saved) return saved === 'dark'
+    return document.documentElement.classList.contains('dark')
+  })
 
   useEffect(() => {
     const root = document.documentElement

@@ -153,13 +153,13 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
 
 
   return (
-    <div className="bg-white rounded-xl shadow p-5">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-5">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-bold text-green-800">
+        <h3 className="text-lg font-bold text-green-800 dark:text-green-400">
           <SplitText
             text="Daily Time Record"
             tag="span"
-            className="text-lg font-bold text-green-800"
+            className="text-lg font-bold text-green-800 dark:text-green-400"
             delay={35}
             duration={0.6}
             ease="back.out(1.4)"
@@ -183,7 +183,7 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
       </div>
       {/* Progress bar */}
       <div className="mb-4">
-        <div className="flex justify-between text-xs text-green-700 mb-1">
+        <div className="flex justify-between text-xs text-green-700 dark:text-green-400 mb-1">
           <span className="flex items-center gap-1">
             <Counter
               value={Math.round(totalHours)}
@@ -191,7 +191,7 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
               gap={1}
               horizontalPadding={0}
               borderRadius={0}
-              textColor="#15803d"
+              textColor="currentColor"
               fontWeight="600"
             />
             {' '}hrs rendered
@@ -203,32 +203,32 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
               gap={1}
               horizontalPadding={0}
               borderRadius={0}
-              textColor="#15803d"
+              textColor="currentColor"
               fontWeight="600"
             />
             {' '}hrs remaining of {required}
           </span>
         </div>
-        <div className="w-full bg-green-100 rounded-full h-3">
+        <div className="w-full bg-green-100 dark:bg-gray-700 rounded-full h-3">
           <div
             ref={progressBarRef}
             className="bg-green-600 h-3 rounded-full"
 
           />
         </div>
-        <p className="text-xs text-green-700 mt-1 text-right flex items-center justify-end gap-1">
+        <p className="text-xs text-green-700 dark:text-green-400 mt-1 text-right flex items-center justify-end gap-1">
           <Counter
             value={percent}
             fontSize={13}
             gap={1}
             horizontalPadding={0}
             borderRadius={0}
-            textColor="#15803d"
+            textColor="currentColor"
             fontWeight="600"
           />
           % completed
         </p>
-        <p className="text-xs text-green-600 mt-1">
+        <p className="text-xs text-green-600 dark:text-green-400 mt-1">
           Est. completion: <span className="font-semibold">{estFinishLabel}</span>
           {avgPerDay > 0 && remaining > 0 && (
             <span className="text-gray-400 ml-1">(avg {avgPerDay.toFixed(1)} hrs/day)</span>
@@ -256,34 +256,34 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
             </thead>
             <tbody ref={tbodyRef}>
               {records.map((r, i) => (
-                <tr key={r.id ?? i} className={i % 2 === 0 ? 'bg-white' : 'bg-green-50'}>
-                  <td className="border border-gray-300 px-2 py-1 text-center text-gray-400">{i + 1}</td>
-                  <td className="border border-gray-300 px-2 py-1 text-center">{formatDate(r.date)}</td>
+                <tr key={r.id ?? i} className={i % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-green-50 dark:bg-gray-700/60'}>
+                  <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center text-gray-400 dark:text-gray-500">{i + 1}</td>
+                  <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center dark:text-gray-200">{formatDate(r.date)}</td>
                   {editId === r.id ? (
                     <>
-                      <td ref={editRowAnimRef} className="border border-gray-300 px-1 py-1">
+                      <td ref={editRowAnimRef} className="border border-gray-300 dark:border-gray-600 px-1 py-1">
                         <input
                           type="time"
                           value={editDraft.time_in}
                           onChange={e => setEditDraft(d => ({ ...d, time_in: e.target.value }))}
-                          className="w-full border border-green-300 rounded px-1 py-0.5 text-xs"
+                          className="w-full border border-green-300 dark:border-gray-500 dark:bg-gray-700 dark:text-gray-100 rounded px-1 py-0.5 text-xs"
                         />
                       </td>
-                      <td className="border border-gray-300 px-1 py-1">
+                      <td className="border border-gray-300 dark:border-gray-600 px-1 py-1">
                         <input
                           type="time"
                           value={editDraft.time_out}
                           onChange={e => setEditDraft(d => ({ ...d, time_out: e.target.value }))}
-                          className="w-full border border-green-300 rounded px-1 py-0.5 text-xs"
+                          className="w-full border border-green-300 dark:border-gray-500 dark:bg-gray-700 dark:text-gray-100 rounded px-1 py-0.5 text-xs"
                         />
                       </td>
-                      <td className="border border-gray-300 px-2 py-1 text-center text-gray-400 text-xs">
+                      <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center text-gray-400 dark:text-gray-400 text-xs">
                         {calcHours(editDraft.time_in, editDraft.time_out) ?? '—'}
                       </td>
-                      <td className="border border-gray-300 px-2 py-1 text-center">
+                      <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center">
                         <span className="text-yellow-600 font-bold">M</span>
                       </td>
-                      <td className="border border-gray-300 px-2 py-1 text-center">
+                      <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center">
                         <div className="flex items-center justify-center gap-1">
                           <button onClick={() => saveEdit(r)} className="text-green-700 hover:text-green-900" title="Save"><Check size={13} /></button>
                           <button onClick={() => setEditId(null)} className="text-gray-400 hover:text-gray-600" title="Cancel"><X size={13} /></button>
@@ -293,26 +293,26 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
                   ) : (
                     <>
                       {r.record_type === 'absent' ? (
-                        <td colSpan={2} className="border border-gray-300 px-2 py-1 text-center">
+                        <td colSpan={2} className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center">
                           <span className="text-red-500 font-bold">ABSENT</span>
                         </td>
                       ) : (
                         <>
-                          <td className="border border-gray-300 px-2 py-1 text-center">{formatTime(r.time_in)}</td>
-                          <td className="border border-gray-300 px-2 py-1 text-center">{formatTime(r.time_out)}</td>
+                          <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center dark:text-gray-200">{formatTime(r.time_in)}</td>
+                          <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center dark:text-gray-200">{formatTime(r.time_out)}</td>
                         </>
                       )}
-                      <td className="border border-gray-300 px-2 py-1 text-center">
+                      <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center dark:text-gray-200">
                         {r.record_type === 'absent'
                           ? <span className="text-red-400">0</span>
                           : (r.hours_rendered ?? '')}
                       </td>
-                      <td className="border border-gray-300 px-2 py-1 text-center">
+                      <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center">
                         {r.record_type === 'absent'
                           ? <span className="text-red-500 font-bold">A</span>
                           : (r.is_manual ? <span className="text-yellow-600 font-bold">M</span> : '')}
                       </td>
-                      <td className="border border-gray-300 px-2 py-1 text-center">
+                      <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center">
                         <div className="flex items-center justify-center gap-1">
                           {r.record_type !== 'absent' && (
                             <button
@@ -339,14 +339,14 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
               ))}
             </tbody>
             <tfoot>
-              <tr className="bg-green-100 font-bold">
-                <td colSpan={4} className="border border-gray-300 px-2 py-1 text-right text-green-800">Total Hours:</td>
-                <td className="border border-gray-300 px-2 py-1 text-center text-green-800">{totalHours.toFixed(0)}</td>
-                <td colSpan={2} className="border border-gray-300 px-2 py-1"></td>
+              <tr className="bg-green-100 dark:bg-gray-700 font-bold">
+                <td colSpan={4} className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-right text-green-800 dark:text-green-300">Total Hours:</td>
+                <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center text-green-800 dark:text-green-300">{totalHours.toFixed(0)}</td>
+                <td colSpan={2} className="border border-gray-300 dark:border-gray-600 px-2 py-1"></td>
               </tr>
             </tfoot>
           </table>
-          <p className="text-xs text-gray-400 mt-2">
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
             <span className="text-yellow-600 font-bold">M</span> = manually encoded &nbsp;
             <span className="text-red-500 font-bold">A</span> = absent (not counted) &nbsp;
             <span className="text-blue-500 font-bold">✎</span> = edit &nbsp;
