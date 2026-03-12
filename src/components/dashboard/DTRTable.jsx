@@ -72,10 +72,7 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
     }
   }, [loading])
 
-  // Split into two columns of 24 for the DTR layout
-  const left = records.slice(0, 24)
-  const right = records.slice(24, 48)
-  const rows = Array.from({ length: 24 }, (_, i) => ({ l: left[i], r: right[i] }))
+
 
   return (
     <div className="bg-white rounded-xl shadow p-5">
@@ -157,16 +154,14 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
 
       {loading ? (
         <p className="text-sm text-gray-400 text-center py-8">Loading records…</p>
+      ) : records.length === 0 ? (
+        <p className="text-sm text-gray-400 text-center py-8">No records yet.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs border-collapse">
             <thead>
               <tr className="bg-green-700 text-white">
-                <th className="border border-green-900 px-2 py-1">Date</th>
-                <th className="border border-green-900 px-2 py-1">Time In</th>
-                <th className="border border-green-900 px-2 py-1">Time Out</th>
-                <th className="border border-green-900 px-2 py-1">Hrs</th>
-                <th className="border border-green-900 px-2 py-1">M</th>
+                <th className="border border-green-900 px-2 py-1">#</th>
                 <th className="border border-green-900 px-2 py-1">Date</th>
                 <th className="border border-green-900 px-2 py-1">Time In</th>
                 <th className="border border-green-900 px-2 py-1">Time Out</th>
@@ -175,57 +170,39 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
               </tr>
             </thead>
             <tbody ref={tbodyRef}>
-              {rows.map((row, i) => (
-                <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-green-50'}>
-                  {/* LEFT column */}
-                  <td className="border border-gray-300 px-2 py-1 text-center">{row.l ? formatDate(row.l.date) : ''}</td>
+              {records.map((r, i) => (
+                <tr key={r.id ?? i} className={i % 2 === 0 ? 'bg-white' : 'bg-green-50'}>
+                  <td className="border border-gray-300 px-2 py-1 text-center text-gray-400">{i + 1}</td>
+                  <td className="border border-gray-300 px-2 py-1 text-center">{formatDate(r.date)}</td>
                   <td className="border border-gray-300 px-2 py-1 text-center">
-                    {row.l?.record_type === 'absent' ? <span className="text-red-500 font-bold text-xs">ABSENT</span> : (row.l ? formatTime(row.l.time_in) : '')}
+                    {r.record_type === 'absent'
+                      ? <span className="text-red-500 font-bold">ABSENT</span>
+                      : formatTime(r.time_in)}
                   </td>
                   <td className="border border-gray-300 px-2 py-1 text-center">
-                    {row.l?.record_type === 'absent' ? '' : (row.l ? formatTime(row.l.time_out) : '')}
+                    {r.record_type === 'absent' ? '' : formatTime(r.time_out)}
                   </td>
                   <td className="border border-gray-300 px-2 py-1 text-center">
-                    {row.l?.record_type === 'absent' ? <span className="text-red-400 text-xs">0</span> : (row.l?.hours_rendered ? row.l.hours_rendered : '')}
+                    {r.record_type === 'absent'
+                      ? <span className="text-red-400">0</span>
+                      : (r.hours_rendered ?? '')}
                   </td>
                   <td className="border border-gray-300 px-2 py-1 text-center">
-                    {row.l?.record_type === 'absent' ? <span className="text-red-500 font-bold">A</span> : (row.l?.is_manual ? <span className="text-yellow-600 font-bold">M</span> : '')}
-                  </td>
-                  {/* RIGHT column */}
-                  <td className="border border-gray-300 px-2 py-1 text-center">{row.r ? formatDate(row.r.date) : ''}</td>
-                  <td className="border border-gray-300 px-2 py-1 text-center">
-                    {row.r?.record_type === 'absent' ? <span className="text-red-500 font-bold text-xs">ABSENT</span> : (row.r ? formatTime(row.r.time_in) : '')}
-                  </td>
-                  <td className="border border-gray-300 px-2 py-1 text-center">
-                    {row.r?.record_type === 'absent' ? '' : (row.r ? formatTime(row.r.time_out) : '')}
-                  </td>
-                  <td className="border border-gray-300 px-2 py-1 text-center">
-                    {row.r?.record_type === 'absent' ? <span className="text-red-400 text-xs">0</span> : (row.r?.hours_rendered ? row.r.hours_rendered : '')}
-                  </td>
-                  <td className="border border-gray-300 px-2 py-1 text-center">
-                    {row.r?.record_type === 'absent' ? <span className="text-red-500 font-bold">A</span> : (row.r?.is_manual ? <span className="text-yellow-600 font-bold">M</span> : '')}
+                    {r.record_type === 'absent'
+                      ? <span className="text-red-500 font-bold">A</span>
+                      : (r.is_manual ? <span className="text-yellow-600 font-bold">M</span> : '')}
                   </td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
               <tr className="bg-green-100 font-bold">
-                <td colSpan={3} className="border border-gray-300 px-2 py-1 text-right text-green-800">Total Hours (first 24):</td>
-                <td className="border border-gray-300 px-2 py-1 text-center text-green-800">
-                  {left.reduce((s, r) => s + (r.hours_rendered || 0), 0).toFixed(0)}
-                </td>
-                <td className="border border-gray-300 px-2 py-1"></td>
-                <td colSpan={3} className="border border-gray-300 px-2 py-1 text-right text-green-800">Total Hours (next 24):</td>
-                <td className="border border-gray-300 px-2 py-1 text-center text-green-800">
-                  {right.reduce((s, r) => s + (r.hours_rendered || 0), 0).toFixed(0)}
-                </td>
+                <td colSpan={4} className="border border-gray-300 px-2 py-1 text-right text-green-800">Total Hours:</td>
+                <td className="border border-gray-300 px-2 py-1 text-center text-green-800">{totalHours.toFixed(0)}</td>
                 <td className="border border-gray-300 px-2 py-1"></td>
               </tr>
             </tfoot>
           </table>
-          {records.length > 48 && (
-            <p className="text-xs text-gray-400 mt-2 text-center">Showing first 48 records. All records count toward totals.</p>
-          )}
           <p className="text-xs text-gray-400 mt-2">
             <span className="text-yellow-600 font-bold">M</span> = manually encoded &nbsp;
             <span className="text-red-500 font-bold">A</span> = absent (not counted)
