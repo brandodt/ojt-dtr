@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Settings } from 'react-feather'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { ToastProvider } from './context/ToastContext'
 import Login from './components/auth/Login'
 import Register from './components/auth/Register'
 import Dashboard from './components/dashboard/Dashboard'
@@ -55,9 +56,11 @@ function SetupScreen() {
 export default function App() {
   if (!isConfigured) return <SetupScreen />
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ToastProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ToastProvider>
   )
 }
 

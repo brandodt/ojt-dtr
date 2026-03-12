@@ -4,6 +4,7 @@ import gsap from 'gsap'
 import { LogIn, LogOut, X, Plus, UserX } from 'react-feather'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 
 function toTimeString(date) {
   return date.toTimeString().slice(0, 5)
@@ -28,9 +29,9 @@ const blankRow = () => ({ date: '', timeIn: '', timeOut: '', type: 'regular', sc
 
 export default function TimeInOut({ onRecordSaved }) {
   const { user } = useAuth()
+  const { showToast } = useToast()
   const [mode, setMode] = useState('today')
   const [loading, setLoading] = useState(false)
-  const [msg, setMsg] = useState(null)
 
   // Today tab schedule
   const [todaySchedule, setTodaySchedule] = useState('standard')
@@ -65,10 +66,7 @@ export default function TimeInOut({ onRecordSaved }) {
     gsap.from(el, { opacity: 0, y: -14, scale: 0.96, duration: 0.32, ease: 'back.out(2)' })
   }
 
-  const showMsg = (type, text) => {
-    setMsg({ type, text })
-    setTimeout(() => setMsg(null), 5000)
-  }
+  const showMsg = (type, text) => showToast(type, text)
 
   const updateRow = (i, field, value) => {
     setRows(prev => prev.map((r, idx) => idx === i ? { ...r, [field]: value } : r))
@@ -259,14 +257,6 @@ export default function TimeInOut({ onRecordSaved }) {
       </div>
 
       {/* Feedback */}
-      {msg && (
-        <div
-          ref={msgAnimRef}
-          className={`rounded-lg px-4 py-2 text-sm mb-4 ${msg.type === 'success' ? 'bg-green-50 text-green-800 border border-green-300' : 'bg-red-50 text-red-700 border border-red-300'}`}
-        >
-          {msg.text}
-        </div>
-      )}
 
       {/* TODAY MODE */}
       {mode === 'today' && (
