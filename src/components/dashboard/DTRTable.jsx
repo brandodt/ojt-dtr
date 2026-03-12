@@ -29,7 +29,6 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
   const progressBarRef = useRef()
   const tbodyRef = useRef()
   const printBtnRef = useRef()
-  const hasAnimatedBar = useRef(false)
 
   useEffect(() => {
     if (!user) return
@@ -50,19 +49,20 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
   const remaining = Math.max(0, required - totalHours)
   const percent = Math.min(100, Math.round((totalHours / required) * 100))
 
-  // Animate progress bar fill
+  // Initialize bar to 0% so GSAP has full control of the width
   useEffect(() => {
-    if (!progressBarRef.current) return
-    if (!hasAnimatedBar.current) {
-      hasAnimatedBar.current = true
-      gsap.fromTo(progressBarRef.current,
-        { width: '0%' },
-        { width: `${percent}%`, duration: 1.5, ease: 'power2.out', delay: 0.4 }
-      )
-    } else {
-      gsap.to(progressBarRef.current, { width: `${percent}%`, duration: 0.9, ease: 'power2.out' })
-    }
-  }, [percent])
+    if (progressBarRef.current) gsap.set(progressBarRef.current, { width: '0%' })
+  }, [])
+
+  // Animate progress bar only after data has loaded
+  useEffect(() => {
+    if (!progressBarRef.current || loading) return
+    gsap.fromTo(
+      progressBarRef.current,
+      { width: '0%' },
+      { width: `${percent}%`, duration: 1.5, ease: 'power2.out' }
+    )
+  }, [loading])
 
   // Stagger table rows when data loads
   useEffect(() => {
@@ -135,7 +135,7 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
           <div
             ref={progressBarRef}
             className="bg-green-600 h-3 rounded-full"
-            style={{ width: 0 }}
+
           />
         </div>
         <p className="text-xs text-green-700 mt-1 text-right flex items-center justify-end gap-1">
