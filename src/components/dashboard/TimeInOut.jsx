@@ -41,6 +41,7 @@ export default function TimeInOut({ onRecordSaved }) {
   const timeInBtnRef = useRef()
   const timeOutBtnRef = useRef()
   const absentBtnRef = useRef()
+  const confirmPanelRef = useRef()
   const isMountedRef = useRef(false)
 
   // Slide tab content on mode CHANGE (skip on initial mount)
@@ -57,6 +58,17 @@ export default function TimeInOut({ onRecordSaved }) {
       { opacity: 1, x: 0, duration: 0.35, ease: 'power2.out' }
     )
   }, [mode])
+
+  // Animate confirmation panel when it appears
+  useEffect(() => {
+    if (confirmAbsent && confirmPanelRef.current) {
+      gsap.fromTo(
+        confirmPanelRef.current,
+        { opacity: 0, y: -10, scaleY: 0.85 },
+        { opacity: 1, y: 0, scaleY: 1, duration: 0.28, ease: 'back.out(1.6)', transformOrigin: 'top' }
+      )
+    }
+  }, [confirmAbsent])
 
   // Past-date rows
   const [rows, setRows] = useState([blankRow()])
@@ -310,7 +322,7 @@ export default function TimeInOut({ onRecordSaved }) {
               <UserX size={16} /> Mark as Absent Today
             </button>
           ) : (
-            <div className="w-full bg-red-50 border border-red-300 rounded-xl px-4 py-3 flex flex-col gap-2">
+            <div ref={confirmPanelRef} className="w-full bg-red-50 border border-red-300 rounded-xl px-4 py-3 flex flex-col gap-2">
               <p className="text-sm text-red-700 font-semibold text-center">Are you sure you want to mark today as absent?</p>
               <div className="flex gap-2">
                 <button

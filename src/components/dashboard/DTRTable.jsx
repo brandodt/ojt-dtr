@@ -108,6 +108,15 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
     setEditDraft({ time_in: r.time_in || '', time_out: r.time_out || '' })
   }
 
+  // Callback ref to animate edit cells when they mount
+  const editRowAnimRef = (el) => {
+    if (!el) return
+    gsap.fromTo(el,
+      { opacity: 0, x: -8 },
+      { opacity: 1, x: 0, duration: 0.22, ease: 'power2.out' }
+    )
+  }
+
   async function saveEdit(r) {
     const hours = calcHours(editDraft.time_in, editDraft.time_out)
     if (editDraft.time_in && editDraft.time_out && hours === null) {
@@ -252,7 +261,7 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
                   <td className="border border-gray-300 px-2 py-1 text-center">{formatDate(r.date)}</td>
                   {editId === r.id ? (
                     <>
-                      <td className="border border-gray-300 px-1 py-1">
+                      <td ref={editRowAnimRef} className="border border-gray-300 px-1 py-1">
                         <input
                           type="time"
                           value={editDraft.time_in}
