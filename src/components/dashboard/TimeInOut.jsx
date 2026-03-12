@@ -1,4 +1,6 @@
-﻿import { useState } from 'react'
+﻿import { useRef, useState, useEffect } from 'react'
+import { useGSAP } from '@gsap/react'
+import gsap from 'gsap'
 import { LogIn, LogOut, X, Plus } from 'react-feather'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
@@ -31,8 +33,34 @@ export default function TimeInOut({ onRecordSaved }) {
   // Today tab schedule
   const [todaySchedule, setTodaySchedule] = useState('standard')
 
+  const modeContentRef = useRef()
+  const timeInBtnRef = useRef()
+  const timeOutBtnRef = useRef()
+  const isMountedRef = useRef(false)
+
+  // Slide tab content on mode CHANGE (skip on initial mount)
+  useEffect(() => {
+    if (!isMountedRef.current) {
+      isMountedRef.current = true
+      return
+    }
+    if (!modeContentRef.current) return
+    const dir = mode === 'today' ? -1 : 1
+    gsap.fromTo(
+      modeContentRef.current,
+      { opacity: 0, x: dir * 28 },
+      { opacity: 1, x: 0, duration: 0.35, ease: 'power2.out' }
+    )
+  }, [mode])
+
   // Past-date rows
   const [rows, setRows] = useState([blankRow()])
+
+  // Callback ref — animates feedback message on mount
+  const msgAnimRef = (el) => {
+    if (!el) return
+    gsap.from(el, { opacity: 0, y: -14, scale: 0.96, duration: 0.32, ease: 'back.out(2)' })
+  }
 
   const showMsg = (type, text) => {
     setMsg({ type, text })
@@ -183,14 +211,17 @@ export default function TimeInOut({ onRecordSaved }) {
 
       {/* Feedback */}
       {msg && (
-        <div className={`rounded-lg px-4 py-2 text-sm mb-4 ${msg.type === 'success' ? 'bg-green-50 text-green-800 border border-green-300' : 'bg-red-50 text-red-700 border border-red-300'}`}>
+        <div
+          ref={msgAnimRef}
+          className={`rounded-lg px-4 py-2 text-sm mb-4 ${msg.type === 'success' ? 'bg-green-50 text-green-800 border border-green-300' : 'bg-red-50 text-red-700 border border-red-300'}`}
+        >
           {msg.text}
         </div>
       )}
 
       {/* TODAY MODE */}
       {mode === 'today' && (
-        <div className="space-y-3">
+        <div ref={modeContentRef} className="space-y-3">
           <label className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 text-sm cursor-pointer select-none">
             <input
               type="checkbox"
@@ -204,14 +235,22 @@ export default function TimeInOut({ onRecordSaved }) {
           </label>
           <div className="grid grid-cols-2 gap-4">
             <button
-              onClick={handleTimeIn}
+              ref={timeInBtnRef}
+              onClick={() => {
+                gsap.to(timeInBtnRef.current, { scale: 0.93, duration: 0.1, yoyo: true, repeat: 1, ease: 'power1.inOut' })
+                handleTimeIn()
+              }}
               disabled={loading}
               className="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold py-6 rounded-xl text-lg transition-colors disabled:opacity-60 shadow flex items-center justify-center gap-2"
             >
               <LogIn size={20} /> TIME IN
             </button>
             <button
-              onClick={handleTimeOut}
+              ref={timeOutBtnRef}
+              onClick={() => {
+                gsap.to(timeOutBtnRef.current, { scale: 0.93, duration: 0.1, yoyo: true, repeat: 1, ease: 'power1.inOut' })
+                handleTimeOut()
+              }}
               disabled={loading}
               className="bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold py-6 rounded-xl text-lg transition-colors disabled:opacity-60 shadow flex items-center justify-center gap-2"
             >
@@ -223,6 +262,7 @@ export default function TimeInOut({ onRecordSaved }) {
 
       {/* PAST DATE MODE */}
       {mode === 'past' && (
+        <div ref={modeContentRef}>
         <form onSubmit={handlePastSave} className="space-y-3">
           <div className="space-y-2">
             {rows.map((row, i) => (
@@ -323,6 +363,7 @@ export default function TimeInOut({ onRecordSaved }) {
             {loading ? 'Saving...' : `Save ${rows.length} Record${rows.length > 1 ? 's' : ''}`}
           </button>
         </form>
+        </div>
       )}
     </div>
   )

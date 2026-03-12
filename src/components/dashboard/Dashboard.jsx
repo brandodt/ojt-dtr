@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { useGSAP } from '@gsap/react'
+import gsap from 'gsap'
 import { LogOut, Edit2, X, Check } from 'react-feather'
 import { useAuth } from '../../context/AuthContext'
 import Clock from './Clock'
@@ -23,10 +25,19 @@ export default function Dashboard() {
     () => localStorage.getItem('dtr_semester') || '2nd'
   )
   const [editing, setEditing] = useState(false)
+  const dashRef = useRef()
+  const signOutBtnRef = useRef()
   // draft state while editing
   const [draftSupervisor, setDraftSupervisor] = useState(supervisor)
   const [draftAY, setDraftAY] = useState(academicYear)
   const [draftSemester, setDraftSemester] = useState(semester)
+
+  useGSAP(() => {
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+    tl
+      .from('.dash-header', { y: -65, duration: 0.65 })
+      .from('.dash-card', { opacity: 0, y: 42, stagger: 0.13, duration: 0.6, ease: 'back.out(1.3)' }, '-=0.25')
+  }, { scope: dashRef })
 
   function openEdit() {
     setDraftSupervisor(supervisor)
@@ -46,9 +57,9 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-green-50">
+    <div ref={dashRef} className="min-h-screen bg-green-50">
       {/* Top Nav */}
-      <header className="bg-green-800 text-white shadow-lg">
+      <header className="dash-header bg-green-800 text-white shadow-lg">
         <div className="max-w-5xl mx-auto px-3 py-2 flex items-center justify-between gap-2">
           {/* Left: logos + title */}
           <div className="flex items-center gap-2 min-w-0">
@@ -62,7 +73,11 @@ export default function Dashboard() {
           <div className="flex items-center gap-2 shrink-0">
             <img src="/bagong-pilipinas-logo.png" alt="Bagong Pilipinas" className="h-9 w-auto" />
             <button
-              onClick={signOut}
+              ref={signOutBtnRef}
+              onClick={() => {
+                gsap.to(signOutBtnRef.current, { scale: 0.92, duration: 0.08, yoyo: true, repeat: 1 })
+                setTimeout(signOut, 180)
+              }}
               className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
             >
               <LogOut size={13} /> Sign Out
@@ -73,7 +88,7 @@ export default function Dashboard() {
 
       <main className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-5">
         {/* Student Info Card */}
-        <div className="bg-white rounded-xl shadow p-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+        <div className="dash-card bg-white rounded-xl shadow p-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
           <div>
             <p className="text-xs text-gray-500">Name</p>
             <p className="font-bold text-green-800">{profile?.full_name || user?.email}</p>
@@ -93,7 +108,7 @@ export default function Dashboard() {
         </div>
 
         {/* Print DTR Settings Card */}
-        <div className="bg-white rounded-xl shadow p-4">
+        <div className="dash-card bg-white rounded-xl shadow p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-green-800">Print DTR Settings</h3>
             {!editing ? (
@@ -173,13 +188,13 @@ export default function Dashboard() {
         </div>
 
         {/* Clock */}
-        <Clock />
+        <div className="dash-card"><Clock /></div>
 
         {/* Time In / Out */}
-        <TimeInOut onRecordSaved={() => setRefresh(r => r + 1)} />
+        <div className="dash-card"><TimeInOut onRecordSaved={() => setRefresh(r => r + 1)} /></div>
 
         {/* DTR Table */}
-        <DTRTable refresh={refresh} supervisor={supervisor} academicYear={academicYear} semester={semester} />
+        <div className="dash-card"><DTRTable refresh={refresh} supervisor={supervisor} academicYear={academicYear} semester={semester} /></div>
       </main>
     </div>
   )

@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useGSAP } from '@gsap/react'
+import gsap from 'gsap'
 import { Printer } from 'react-feather'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
@@ -22,6 +24,11 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
   const [records, setRecords] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const progressBarRef = useRef()
+  const tbodyRef = useRef()
+  const printBtnRef = useRef()
+  const hasAnimatedBar = useRef(false)
+
   useEffect(() => {
     if (!user) return
     setLoading(true)
@@ -41,6 +48,28 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
   const remaining = Math.max(0, required - totalHours)
   const percent = Math.min(100, Math.round((totalHours / required) * 100))
 
+  // Animate progress bar fill
+  useEffect(() => {
+    if (!progressBarRef.current) return
+    if (!hasAnimatedBar.current) {
+      hasAnimatedBar.current = true
+      gsap.fromTo(progressBarRef.current,
+        { width: '0%' },
+        { width: `${percent}%`, duration: 1.5, ease: 'power2.out', delay: 0.4 }
+      )
+    } else {
+      gsap.to(progressBarRef.current, { width: `${percent}%`, duration: 0.9, ease: 'power2.out' })
+    }
+  }, [percent])
+
+  // Stagger table rows when data loads
+  useEffect(() => {
+    if (!loading && tbodyRef.current) {
+      const rows = tbodyRef.current.querySelectorAll('tr')
+      gsap.from(rows, { opacity: 0, y: 7, stagger: 0.02, duration: 0.32, ease: 'power2.out', delay: 0.1 })
+    }
+  }, [loading])
+
   // Split into two columns of 24 for the DTR layout
   const left = records.slice(0, 24)
   const right = records.slice(24, 48)
@@ -51,7 +80,11 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-bold text-green-800">Daily Time Record</h3>
         <button
-          onClick={() => printDTR({ profile, user, records, supervisor, academicYear, semester })}
+          ref={printBtnRef}
+          onClick={() => {
+            gsap.to(printBtnRef.current, { scale: 0.93, duration: 0.08, yoyo: true, repeat: 1 })
+            printDTR({ profile, user, records, supervisor, academicYear, semester })
+          }}
           className="flex items-center gap-2 bg-green-700 hover:bg-green-800 active:bg-green-900 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
         >
           <Printer size={15} /> Print DTR
@@ -65,8 +98,9 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
         </div>
         <div className="w-full bg-green-100 rounded-full h-3">
           <div
-            className="bg-green-600 h-3 rounded-full transition-all"
-            style={{ width: `${percent}%` }}
+            ref={progressBarRef}
+            className="bg-green-600 h-3 rounded-full"
+            style={{ width: 0 }}
           />
         </div>
         <p className="text-xs text-green-700 mt-1 text-right">{percent}% completed</p>
@@ -91,7 +125,7 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
                 <th className="border border-green-900 px-2 py-1">M</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody ref={tbodyRef}>
               {rows.map((row, i) => (
                 <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-green-50'}>
                   {/* LEFT column */}
