@@ -69,9 +69,8 @@ export default function Dashboard() {
               <p className="text-green-300 text-[10px] sm:text-xs truncate">Imus Campus — OJT DTR System</p>
             </div>
           </div>
-          {/* Right: bagong pilipinas + sign out */}
+          {/* Right: sign out */}
           <div className="flex items-center gap-2 shrink-0">
-            <img src="/bagong-pilipinas-logo.png" alt="Bagong Pilipinas" className="h-9 w-auto" />
             <button
               ref={signOutBtnRef}
               onClick={() => {
