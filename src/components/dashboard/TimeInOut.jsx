@@ -19,7 +19,9 @@ function calcHours(timeIn, timeOut, schedule) {
   const [inH, inM] = timeIn.split(':').map(Number)
   const [outH, outM] = timeOut.split(':').map(Number)
   const raw = (outH * 60 + outM - (inH * 60 + inM)) / 60
-  return parseFloat(Math.max(0, raw - 1).toFixed(2))
+  if (raw <= 0) return null   // time-out is not after time-in
+  const net = parseFloat((raw - 1).toFixed(2))
+  return net > 0 ? net : null  // net zero after lunch deduction → invalid
 }
 
 const blankRow = () => ({ date: '', timeIn: '', timeOut: '', type: 'regular', schedule: 'standard' })
@@ -137,6 +139,11 @@ export default function TimeInOut({ onRecordSaved }) {
     }
 
     const hours = calcHours(existing.time_in, timeOut, todaySchedule)
+    if (todaySchedule !== 'temp_8hr' && (hours === null || hours <= 0)) {
+      showMsg('error', 'Time Out must be later than Time In (and result in at least 1 hour after lunch deduction).')
+      setLoading(false)
+      return
+    }
     const label = todaySchedule === 'temp_8hr'
       ? '8 hrs (temp schedule)'
       : `${hours} hrs after lunch deduction`
@@ -162,6 +169,13 @@ export default function TimeInOut({ onRecordSaved }) {
       if (r.type === 'regular' && !r.timeIn) {
         showMsg('error', `Row ${i + 1}: Time In is required for regular duty.`)
         return
+      }
+      if (r.type === 'regular' && r.schedule !== 'temp_8hr' && r.timeIn && r.timeOut) {
+        const h = calcHours(r.timeIn, r.timeOut, r.schedule)
+        if (h === null || h <= 0) {
+          showMsg('error', `Row ${i + 1}: Time Out (${r.timeOut}) must be after Time In (${r.timeIn}) and result in at least 1 hour after lunch deduction.`)
+          return
+        }
       }
     }
 
