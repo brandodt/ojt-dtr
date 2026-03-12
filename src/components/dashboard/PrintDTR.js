@@ -22,7 +22,22 @@ function buildRow(rec) {
   }
 }
 
-export function printDTR({ profile, user, records, supervisor, academicYear, semester }) {
+async function toDataUrl(url) {
+  try {
+    const res = await fetch(url)
+    const blob = await res.blob()
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onloadend = () => resolve(reader.result)
+      reader.onerror = reject
+      reader.readAsDataURL(blob)
+    })
+  } catch {
+    return url
+  }
+}
+
+export async function printDTR({ profile, user, records, supervisor, academicYear, semester }) {
   const sup = supervisor || 'Mr. Mark Anthony Q. Pesigan'
   const ay = academicYear || '2025 - 2026'
   const sem = semester || '2nd'
@@ -43,6 +58,10 @@ export function printDTR({ profile, user, records, supervisor, academicYear, sem
   const courseCode = profile?.course_code || meta.course_code || 'ITEC 199'
   const totalRequired = profile?.total_required_hours || meta.total_required_hours || 486
   const baseUrl = window.location.origin
+  const [cvsuLogoSrc, bagongLogoSrc] = await Promise.all([
+    toDataUrl(`${baseUrl}/cvsu-logo.png`),
+    toDataUrl(`${baseUrl}/bagong-pilipinas-logo.png`),
+  ])
 
   const rowsHtml = rows.map(({ l, r }) => `
     <tr>
@@ -103,7 +122,7 @@ export function printDTR({ profile, user, records, supervisor, academicYear, sem
 <body>
 <div class="page">
   <div class="header">
-    <img class="header-logo" src="${baseUrl}/cvsu-logo.png" alt="CSU Logo"/>
+    <img class="header-logo" src="${cvsuLogoSrc}" alt="CSU Logo"/>
     <div class="header-center">
       <div class="univ-name">CAVITE STATE UNIVERSITY</div>
       <div class="campus-name">Imus Campus</div>
@@ -111,7 +130,7 @@ export function printDTR({ profile, user, records, supervisor, academicYear, sem
       <div class="phones">(046) 471-66-07 / (046) 471-67-70/ (046) 686-2349</div>
       <div class="website">www.cvsu.edu.ph</div>
     </div>
-    <img class="header-logo" src="${baseUrl}/bagong-pilipinas-logo.png" alt="Bagong Pilipinas"/>
+    <img class="header-logo" src="${bagongLogoSrc}" alt="Bagong Pilipinas"/>
   </div>
 
   <div class="program-subtitle">On-the-Job Training (OJT) Program</div>

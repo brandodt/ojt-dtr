@@ -96,7 +96,7 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
           ref={printBtnRef}
           onClick={() => {
             gsap.to(printBtnRef.current, { scale: 0.93, duration: 0.08, yoyo: true, repeat: 1 })
-            printDTR({ profile, user, records, supervisor, academicYear, semester })
+            printDTR({ profile, user, records, supervisor, academicYear, semester }).catch(console.error)
           }}
           className="flex items-center gap-2 bg-green-700 hover:bg-green-800 active:bg-green-900 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
         >
