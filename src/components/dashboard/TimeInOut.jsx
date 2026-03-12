@@ -1,7 +1,7 @@
 ﻿import { useRef, useState, useEffect } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { LogIn, LogOut, X, Plus } from 'react-feather'
+import { LogIn, LogOut, X, Plus, UserX } from 'react-feather'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 
@@ -38,6 +38,7 @@ export default function TimeInOut({ onRecordSaved }) {
   const modeContentRef = useRef()
   const timeInBtnRef = useRef()
   const timeOutBtnRef = useRef()
+  const absentBtnRef = useRef()
   const isMountedRef = useRef(false)
 
   // Slide tab content on mode CHANGE (skip on initial mount)
@@ -157,6 +158,40 @@ export default function TimeInOut({ onRecordSaved }) {
     setLoading(false)
   }
 
+  /* -- TODAY: Mark Absent -- */
+  const handleMarkAbsent = async () => {
+    setLoading(true)
+    const today = todayStr()
+
+    const { data: existing } = await supabase
+      .from('time_records')
+      .select('id, record_type')
+      .eq('user_id', user.id)
+      .eq('date', today)
+      .single()
+
+    if (existing) {
+      if (existing.record_type === 'absent') {
+        showMsg('error', 'Already marked absent today.')
+        setLoading(false)
+        return
+      }
+      const { error } = await supabase
+        .from('time_records')
+        .update({ time_in: null, time_out: null, hours_rendered: 0, record_type: 'absent', is_manual: false })
+        .eq('id', existing.id)
+      if (error) showMsg('error', error.message)
+      else { showMsg('success', 'Marked as absent for today.'); onRecordSaved() }
+    } else {
+      const { error } = await supabase
+        .from('time_records')
+        .insert({ user_id: user.id, date: today, time_in: null, time_out: null, hours_rendered: 0, record_type: 'absent', is_manual: false })
+      if (error) showMsg('error', error.message)
+      else { showMsg('success', 'Marked as absent for today.'); onRecordSaved() }
+    }
+    setLoading(false)
+  }
+
   /* -- PAST DATE ENCODE (multiple rows) -- */
   const handlePastSave = async (e) => {
     e.preventDefault()
@@ -271,6 +306,17 @@ export default function TimeInOut({ onRecordSaved }) {
               <LogOut size={20} /> TIME OUT
             </button>
           </div>
+          <button
+            ref={absentBtnRef}
+            onClick={() => {
+              gsap.to(absentBtnRef.current, { scale: 0.93, duration: 0.1, yoyo: true, repeat: 1, ease: 'power1.inOut' })
+              handleMarkAbsent()
+            }}
+            disabled={loading}
+            className="w-full bg-gray-100 hover:bg-red-50 border border-red-200 hover:border-red-400 text-red-600 hover:text-red-700 font-semibold py-2.5 rounded-xl text-sm transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+          >
+            <UserX size={16} /> Mark as Absent Today
+          </button>
         </div>
       )}
 
