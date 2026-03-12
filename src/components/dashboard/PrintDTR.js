@@ -1,5 +1,3 @@
-const SUPERVISOR = 'Mr. Mark Anthony Q. Pesigan'
-
 function fmt12(t) {
   if (!t) return ''
   const [h, m] = t.split(':').map(Number)
@@ -24,7 +22,10 @@ function buildRow(rec) {
   }
 }
 
-export function printDTR({ profile, user, records }) {
+export function printDTR({ profile, user, records, supervisor, academicYear, semester }) {
+  const sup = supervisor || 'Mr. Mark Anthony Q. Pesigan'
+  const ay = academicYear || '2025 - 2026'
+  const sem = semester || '2nd'
   // Exclude absent records from the printed DTR
   const printable = records.filter(r => r.record_type !== 'absent')
   const left = printable.slice(0, 24)
@@ -133,12 +134,12 @@ export function printDTR({ profile, user, records }) {
       <span class="info-value">${totalRequired} Hours</span>
     </div>
     <div class="semester-row">
-      <span>(  ) 1st Semester</span>
-      <span>( x ) 2nd Semester</span>
-      <span>(  ) Summer</span>
+      <span>${sem === '1st' ? '( x )' : '(  )'} 1st Semester</span>
+      <span>${sem === '2nd' ? '( x )' : '(  )'} 2nd Semester</span>
+      <span>${sem === 'Summer' ? '( x )' : '(  )'} Summer</span>
       <span class="ay">
         <span class="info-label">Academic Year </span>
-        <span class="info-value">2025 - 2026</span>
+        <span class="info-value">${ay}</span>
       </span>
     </div>
   </div>
@@ -175,7 +176,7 @@ export function printDTR({ profile, user, records }) {
   <div class="attestation">
     <span class="att-label">Attested by:</span>
     <div class="att-signee">
-      <div class="att-name">${SUPERVISOR}</div>
+      <div class="att-name">${sup}</div>
       <div>Supervisor or Head of Host Agency</div>
       <div>(Signature Over Printed Name)</div>
     </div>

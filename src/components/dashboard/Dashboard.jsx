@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { LogOut, Edit2, X, Check } from 'react-feather'
 import { useAuth } from '../../context/AuthContext'
 import Clock from './Clock'
 import TimeInOut from './TimeInOut'
@@ -9,7 +10,40 @@ export default function Dashboard() {
   const [refresh, setRefresh] = useState(0)
 
   const currentYear = new Date().getFullYear()
-  const ay = `${currentYear} - ${currentYear + 1}`
+  const defaultAY = `${currentYear} - ${currentYear + 1}`
+
+  // Print DTR settings — persisted in localStorage
+  const [supervisor, setSupervisor] = useState(
+    () => localStorage.getItem('dtr_supervisor') || 'Mr. Mark Anthony Q. Pesigan'
+  )
+  const [academicYear, setAcademicYear] = useState(
+    () => localStorage.getItem('dtr_ay') || defaultAY
+  )
+  const [semester, setSemester] = useState(
+    () => localStorage.getItem('dtr_semester') || '2nd'
+  )
+  const [editing, setEditing] = useState(false)
+  // draft state while editing
+  const [draftSupervisor, setDraftSupervisor] = useState(supervisor)
+  const [draftAY, setDraftAY] = useState(academicYear)
+  const [draftSemester, setDraftSemester] = useState(semester)
+
+  function openEdit() {
+    setDraftSupervisor(supervisor)
+    setDraftAY(academicYear)
+    setDraftSemester(semester)
+    setEditing(true)
+  }
+
+  function saveEdit() {
+    setSupervisor(draftSupervisor)
+    setAcademicYear(draftAY)
+    setSemester(draftSemester)
+    localStorage.setItem('dtr_supervisor', draftSupervisor)
+    localStorage.setItem('dtr_ay', draftAY)
+    localStorage.setItem('dtr_semester', draftSemester)
+    setEditing(false)
+  }
 
   return (
     <div className="min-h-screen bg-green-50">
@@ -29,9 +63,9 @@ export default function Dashboard() {
             <img src="/bagong-pilipinas-logo.png" alt="Bagong Pilipinas" className="h-9 w-auto" />
             <button
               onClick={signOut}
-              className="bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
+              className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors"
             >
-              Sign Out
+              <LogOut size={13} /> Sign Out
             </button>
           </div>
         </div>
@@ -54,8 +88,88 @@ export default function Dashboard() {
           </div>
           <div>
             <p className="text-xs text-gray-500">Academic Year</p>
-            <p className="font-semibold text-green-800">A.Y. {ay} · 2nd Sem</p>
+            <p className="font-semibold text-green-800">A.Y. {academicYear} · {semester} Sem</p>
           </div>
+        </div>
+
+        {/* Print DTR Settings Card */}
+        <div className="bg-white rounded-xl shadow p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold text-green-800">Print DTR Settings</h3>
+            {!editing ? (
+              <button
+                onClick={openEdit}
+                className="flex items-center gap-1.5 text-xs text-green-700 hover:text-green-900 font-semibold border border-green-300 hover:border-green-600 px-2.5 py-1 rounded-lg transition-colors"
+              >
+                <Edit2 size={12} /> Edit
+              </button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={saveEdit}
+                  className="flex items-center gap-1 text-xs bg-green-700 hover:bg-green-800 text-white font-semibold px-2.5 py-1 rounded-lg transition-colors"
+                >
+                  <Check size={12} /> Save
+                </button>
+                <button
+                  onClick={() => setEditing(false)}
+                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 border border-gray-300 px-2.5 py-1 rounded-lg transition-colors"
+                >
+                  <X size={12} /> Cancel
+                </button>
+              </div>
+            )}
+          </div>
+
+          {!editing ? (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+              <div>
+                <p className="text-xs text-gray-500">Supervisor / Head of Agency</p>
+                <p className="font-semibold text-green-800">{supervisor}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Academic Year</p>
+                <p className="font-semibold text-green-800">{academicYear}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Semester</p>
+                <p className="font-semibold text-green-800">{semester} Semester</p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Supervisor / Head of Agency</label>
+                <input
+                  type="text"
+                  value={draftSupervisor}
+                  onChange={e => setDraftSupervisor(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Academic Year (e.g. 2025 - 2026)</label>
+                <input
+                  type="text"
+                  value={draftAY}
+                  onChange={e => setDraftAY(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Semester</label>
+                <select
+                  value={draftSemester}
+                  onChange={e => setDraftSemester(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="1st">1st Semester</option>
+                  <option value="2nd">2nd Semester</option>
+                  <option value="Summer">Summer</option>
+                </select>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Clock */}
@@ -65,7 +179,7 @@ export default function Dashboard() {
         <TimeInOut onRecordSaved={() => setRefresh(r => r + 1)} />
 
         {/* DTR Table */}
-        <DTRTable refresh={refresh} />
+        <DTRTable refresh={refresh} supervisor={supervisor} academicYear={academicYear} semester={semester} />
       </main>
     </div>
   )

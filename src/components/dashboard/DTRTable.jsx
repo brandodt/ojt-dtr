@@ -17,7 +17,7 @@ function formatDate(d) {
   return new Date(d + 'T00:00:00').toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })
 }
 
-export default function DTRTable({ refresh }) {
+export default function DTRTable({ refresh, supervisor, academicYear, semester }) {
   const { user, profile } = useAuth()
   const [records, setRecords] = useState([])
   const [loading, setLoading] = useState(true)
@@ -51,7 +51,7 @@ export default function DTRTable({ refresh }) {
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-bold text-green-800">Daily Time Record</h3>
         <button
-          onClick={() => printDTR({ profile, user, records })}
+          onClick={() => printDTR({ profile, user, records, supervisor, academicYear, semester })}
           className="flex items-center gap-2 bg-green-700 hover:bg-green-800 active:bg-green-900 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
         >
           <Printer size={15} /> Print DTR
