@@ -32,6 +32,7 @@ export default function TimeInOut({ onRecordSaved }) {
   const { showToast } = useToast()
   const [mode, setMode] = useState('today')
   const [loading, setLoading] = useState(false)
+  const [confirmAbsent, setConfirmAbsent] = useState(false)
 
   // Today tab schedule
   const [todaySchedule, setTodaySchedule] = useState('standard')
@@ -296,17 +297,42 @@ export default function TimeInOut({ onRecordSaved }) {
               <LogOut size={20} /> TIME OUT
             </button>
           </div>
-          <button
-            ref={absentBtnRef}
-            onClick={() => {
-              gsap.to(absentBtnRef.current, { scale: 0.93, duration: 0.1, yoyo: true, repeat: 1, ease: 'power1.inOut' })
-              handleMarkAbsent()
-            }}
-            disabled={loading}
-            className="w-full bg-gray-100 hover:bg-red-50 border border-red-200 hover:border-red-400 text-red-600 hover:text-red-700 font-semibold py-2.5 rounded-xl text-sm transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
-          >
-            <UserX size={16} /> Mark as Absent Today
-          </button>
+          {!confirmAbsent ? (
+            <button
+              ref={absentBtnRef}
+              onClick={() => {
+                gsap.to(absentBtnRef.current, { scale: 0.93, duration: 0.1, yoyo: true, repeat: 1, ease: 'power1.inOut' })
+                setConfirmAbsent(true)
+              }}
+              disabled={loading}
+              className="w-full bg-gray-100 hover:bg-red-50 border border-red-200 hover:border-red-400 text-red-600 hover:text-red-700 font-semibold py-2.5 rounded-xl text-sm transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+            >
+              <UserX size={16} /> Mark as Absent Today
+            </button>
+          ) : (
+            <div className="w-full bg-red-50 border border-red-300 rounded-xl px-4 py-3 flex flex-col gap-2">
+              <p className="text-sm text-red-700 font-semibold text-center">Are you sure you want to mark today as absent?</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setConfirmAbsent(false)
+                    handleMarkAbsent()
+                  }}
+                  disabled={loading}
+                  className="flex-1 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold py-2 rounded-lg text-sm transition-colors disabled:opacity-60 flex items-center justify-center gap-1"
+                >
+                  <UserX size={14} /> Yes, Mark Absent
+                </button>
+                <button
+                  onClick={() => setConfirmAbsent(false)}
+                  disabled={loading}
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 rounded-lg text-sm transition-colors disabled:opacity-60"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
