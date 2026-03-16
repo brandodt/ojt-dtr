@@ -11,7 +11,11 @@ function toTimeString(date) {
 }
 
 function todayStr() {
-  return new Date().toISOString().split('T')[0]
+  const now = new Date()
+  const y = now.getFullYear()
+  const m = String(now.getMonth() + 1).padStart(2, '0')
+  const d = String(now.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
 }
 
 function calcHours(timeIn, timeOut, schedule) {
@@ -211,7 +215,7 @@ export default function TimeInOut({ onRecordSaved }) {
     for (let i = 0; i < rows.length; i++) {
       const r = rows[i]
       if (!r.date) { showMsg('error', `Row ${i + 1}: Date is required.`); return }
-      if (r.date >= today) { showMsg('error', `Row ${i + 1}: Date must be before today.`); return }
+      if (r.date > today) { showMsg('error', `Row ${i + 1}: Date cannot be in the future.`); return }
       if (r.type === 'regular' && !r.timeIn) {
         showMsg('error', `Row ${i + 1}: Time In is required for regular duty.`)
         return
@@ -248,8 +252,6 @@ export default function TimeInOut({ onRecordSaved }) {
     }
     setLoading(false)
   }
-
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-5">
@@ -365,7 +367,7 @@ export default function TimeInOut({ onRecordSaved }) {
                     <input
                       type="date"
                       value={row.date}
-                      max={yesterday}
+                      max={todayStr()}
                       onChange={e => updateRow(i, 'date', e.target.value)}
                       required
                       className="w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-green-300 dark:border-gray-500 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
