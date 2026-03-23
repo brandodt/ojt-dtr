@@ -1,22 +1,17 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { LogOut, Edit2, X, Check, Sun, Moon } from 'react-feather'
 import { useAuth } from '../../context/AuthContext'
-import { useToast } from '../../context/ToastContext'
 import { useDarkMode } from '../../lib/useDarkMode'
 import Clock from './Clock'
 import TimeInOut from './TimeInOut'
 import DTRTable from './DTRTable'
 
 export default function Dashboard() {
-  const { user, profile, signOut, requestEmailChange } = useAuth()
-  const { showToast } = useToast()
+  const { user, profile, signOut } = useAuth()
   const [isDark, toggleDark] = useDarkMode()
   const [refresh, setRefresh] = useState(0)
-  const [editingEmail, setEditingEmail] = useState(false)
-  const [draftEmail, setDraftEmail] = useState('')
-  const [emailLoading, setEmailLoading] = useState(false)
 
   const currentYear = new Date().getFullYear()
   const defaultAY = `${currentYear} - ${currentYear + 1}`
@@ -34,18 +29,12 @@ export default function Dashboard() {
   const [editing, setEditing] = useState(false)
   const dashRef = useRef()
   const signOutBtnRef = useRef()
-  const emailSaveBtnRef = useRef()
-  const emailCardRef = useRef()
   // draft state while editing
   const [draftSupervisor, setDraftSupervisor] = useState(supervisor)
   const [draftAY, setDraftAY] = useState(academicYear)
   const [draftSemester, setDraftSemester] = useState(semester)
 
   const darkToggleRef = useRef()
-
-  useEffect(() => {
-    setDraftEmail((profile?.email || user?.email || '').toLowerCase())
-  }, [profile?.email, user?.email])
 
   function handleToggleDark() {
     if (darkToggleRef.current) {
@@ -80,40 +69,6 @@ export default function Dashboard() {
     localStorage.setItem('dtr_ay', draftAY)
     localStorage.setItem('dtr_semester', draftSemester)
     setEditing(false)
-  }
-
-  async function saveEmail() {
-    const cleaned = draftEmail.trim().toLowerCase()
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-    if (!emailPattern.test(cleaned)) {
-      showToast('error', 'Please enter a valid email address.')
-      return
-    }
-
-    gsap.to(emailSaveBtnRef.current, { scale: 0.93, duration: 0.08, yoyo: true, repeat: 1 })
-    setEmailLoading(true)
-    try {
-      await requestEmailChange(cleaned)
-      setEditingEmail(false)
-      showToast('success', 'Verification link sent to your new email address.')
-    } catch (err) {
-      showToast('error', err.message || 'Failed to request email change.')
-    } finally {
-      setEmailLoading(false)
-    }
-  }
-
-  function openEmailEditor() {
-    setDraftEmail((profile?.email || user?.email || '').toLowerCase())
-    setEditingEmail(true)
-    if (emailCardRef.current) {
-      gsap.fromTo(
-        emailCardRef.current,
-        { y: 10, scale: 0.985 },
-        { y: 0, scale: 1, duration: 0.35, ease: 'power2.out' }
-      )
-    }
   }
 
   return (
@@ -173,59 +128,6 @@ export default function Dashboard() {
             <p className="text-xs text-gray-500 dark:text-gray-400">Academic Year</p>
             <p className="font-semibold text-green-800 dark:text-green-400">A.Y. {academicYear} · {semester} Sem</p>
           </div>
-        </div>
-
-        {/* Account Email */}
-        <div ref={emailCardRef} className="dash-card bg-white dark:bg-gray-800 rounded-xl shadow p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-green-800 dark:text-green-400">Account Email</h3>
-            {!editingEmail ? (
-              <button
-                onClick={openEmailEditor}
-                className="flex items-center gap-1.5 text-xs text-green-700 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 font-semibold border border-green-300 dark:border-green-700 hover:border-green-600 px-2.5 py-1 rounded-lg transition-colors"
-              >
-                <Edit2 size={12} /> Edit Email
-              </button>
-            ) : (
-              <button
-                onClick={() => setEditingEmail(false)}
-                className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 border border-gray-300 dark:border-gray-600 px-2.5 py-1 rounded-lg transition-colors"
-              >
-                <X size={12} /> Cancel
-              </button>
-            )}
-          </div>
-
-          {!editingEmail ? (
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Current Email</p>
-              <p className="font-semibold text-green-800 dark:text-green-400 break-all">{profile?.email || user?.email || '—'}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                Forgot-password links are sent to this address.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">New Email Address</label>
-                <input
-                  type="email"
-                  value={draftEmail}
-                  onChange={(e) => setDraftEmail(e.target.value)}
-                  className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="name@cvsu.edu.ph"
-                />
-              </div>
-              <button
-                ref={emailSaveBtnRef}
-                onClick={saveEmail}
-                disabled={emailLoading}
-                className="flex items-center justify-center gap-1 text-xs bg-green-700 hover:bg-green-800 text-white font-semibold px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60"
-              >
-                <Check size={12} /> {emailLoading ? 'Saving…' : 'Save Email'}
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Print DTR Settings Card */}

@@ -1,24 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Settings } from 'react-feather'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import Login from './components/auth/Login'
 import Register from './components/auth/Register'
-import ForgotPassword from './components/auth/ForgotPassword'
 import Dashboard from './components/dashboard/Dashboard'
 import { isConfigured } from './lib/supabase'
 
 function AppContent() {
-  const { user, loading, isPasswordRecovery } = useAuth()
-  const [page, setPage] = useState('login') // 'login' | 'register' | 'forgot'
-
-  useEffect(() => {
-    const raw = window.location.hash.replace(/^#/, '')
-    const params = new URLSearchParams(raw)
-    if (params.get('type') === 'recovery' || params.has('access_token') || isPasswordRecovery) {
-      setPage('forgot')
-    }
-  }, [isPasswordRecovery])
+  const { user, loading } = useAuth()
+  const [page, setPage] = useState('login') // 'login' | 'register'
 
   if (loading) {
     return (
@@ -28,17 +19,10 @@ function AppContent() {
     )
   }
 
-  if (user && !isPasswordRecovery) return <Dashboard />
+  if (user) return <Dashboard />
 
   if (page === 'register') return <Register onSwitchToLogin={() => setPage('login')} />
-  if (page === 'forgot') return <ForgotPassword onBackToLogin={() => setPage('login')} />
-
-  return (
-    <Login
-      onSwitchToRegister={() => setPage('register')}
-      onSwitchToForgotPassword={() => setPage('forgot')}
-    />
-  )
+  return <Login onSwitchToRegister={() => setPage('register')} />
 }
 
 function SetupScreen() {

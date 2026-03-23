@@ -8,16 +8,11 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   id             UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name      TEXT NOT NULL,
   student_id     TEXT UNIQUE,
-  email          TEXT UNIQUE,
   program        TEXT DEFAULT 'BSIT',
   course_code    TEXT DEFAULT 'ITEC 199',
   total_required_hours INTEGER DEFAULT 486,
   created_at     TIMESTAMPTZ DEFAULT NOW()
 );
-
--- If table already exists, run this migration:
--- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email TEXT;
--- CREATE UNIQUE INDEX IF NOT EXISTS profiles_email_key ON public.profiles(email);
 
 -- Enable Row Level Security
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -45,12 +40,11 @@ LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, student_id, email, program, course_code, total_required_hours)
+  INSERT INTO public.profiles (id, full_name, student_id, program, course_code, total_required_hours)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'full_name', 'Unknown'),
     NEW.raw_user_meta_data->>'student_id',
-    COALESCE(NEW.raw_user_meta_data->>'email', NEW.email),
     COALESCE(NEW.raw_user_meta_data->>'program', 'BSIT'),
     COALESCE(NEW.raw_user_meta_data->>'course_code', 'ITEC 199'),
     COALESCE((NEW.raw_user_meta_data->>'total_required_hours')::INTEGER, 486)

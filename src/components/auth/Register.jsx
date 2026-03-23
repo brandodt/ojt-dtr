@@ -37,7 +37,7 @@ function SuccessCheck() {
 export default function Register({ onSwitchToLogin }) {
   const { signUp } = useAuth()
   const [form, setForm] = useState({
-    password: '', confirmPassword: '', fullName: '', studentId: '', email: '',
+    password: '', confirmPassword: '', fullName: '', studentId: '',
     program: 'BSIT', courseCode: 'ITEC 199', totalHours: 486,
   })
   const [error, setError] = useState('')
@@ -166,12 +166,6 @@ export default function Register({ onSwitchToLogin }) {
             <input type="text" name="studentId" value={form.studentId} onChange={handleChange} required
               className="w-full border border-green-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="2022XXXXX" />
-          </div>
-          <div className="reg-field">
-            <label className="block text-xs font-medium text-green-800 mb-1">Email</label>
-            <input type="email" name="email" value={form.email} onChange={handleChange} required
-              className="w-full border border-green-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="name@cvsu.edu.ph" />
           </div>
           <div className="reg-field grid grid-cols-2 gap-3">
             <div>
