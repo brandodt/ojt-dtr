@@ -3,7 +3,7 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { useAuth } from '../../context/AuthContext'
 
-export default function Login({ onSwitchToRegister }) {
+export default function Login({ onSwitchToRegister, onSwitchToForgotPassword }) {
   const { signIn } = useAuth()
   const [form, setForm] = useState({ studentId: '', password: '' })
   const [error, setError] = useState('')
@@ -11,6 +11,8 @@ export default function Login({ onSwitchToRegister }) {
 
   const containerRef = useRef()
   const submitBtnRef = useRef()
+  const forgotBtnRef = useRef()
+  const registerBtnRef = useRef()
 
   useGSAP(() => {
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
@@ -21,6 +23,7 @@ export default function Login({ onSwitchToRegister }) {
       .from('.login-center-text', { opacity: 0, y: 14, duration: 0.4 }, '-=0.38')
       .from('.login-title', { opacity: 0, y: 12, scale: 0.94, duration: 0.38 }, '-=0.22')
       .from('.login-field', { opacity: 0, x: -28, stagger: 0.1, duration: 0.42 }, '-=0.18')
+        .from('.login-forgot', { opacity: 0, x: 18, duration: 0.32 }, '-=0.12')
       .from('.login-btn', { opacity: 0, y: 16, scale: 0.88, duration: 0.42, ease: 'back.out(2)' }, '-=0.1')
       .from('.login-footer', { opacity: 0, duration: 0.35 }, '-=0.08')
   }, { scope: containerRef })
@@ -55,6 +58,18 @@ export default function Login({ onSwitchToRegister }) {
     } finally {
       setLoading(false)
     }
+  }
+
+  const animateAndSwitch = (targetRef, onSwitch) => {
+    gsap.to(targetRef.current, { scale: 0.94, duration: 0.08, yoyo: true, repeat: 1, ease: 'power1.inOut' })
+    gsap.to('.login-card', {
+      opacity: 0,
+      y: 20,
+      scale: 0.97,
+      duration: 0.22,
+      ease: 'power2.inOut',
+      onComplete: onSwitch,
+    })
   }
 
   return (
@@ -100,6 +115,16 @@ export default function Login({ onSwitchToRegister }) {
               placeholder="••••••••"
             />
           </div>
+          <div className="login-forgot text-right -mt-2">
+            <button
+              ref={forgotBtnRef}
+              type="button"
+              onClick={() => animateAndSwitch(forgotBtnRef, onSwitchToForgotPassword)}
+              className="text-sm text-green-700 font-medium hover:underline"
+            >
+              Forgot password?
+            </button>
+          </div>
           <button
             ref={submitBtnRef}
             type="submit"
@@ -112,7 +137,11 @@ export default function Login({ onSwitchToRegister }) {
 
         <p className="login-footer text-center text-sm text-gray-600 mt-6">
           No account yet?{' '}
-          <button onClick={onSwitchToRegister} className="text-green-700 font-semibold hover:underline">
+          <button
+            ref={registerBtnRef}
+            onClick={() => animateAndSwitch(registerBtnRef, onSwitchToRegister)}
+            className="text-green-700 font-semibold hover:underline"
+          >
             Register here
           </button>
         </p>
