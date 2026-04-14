@@ -47,7 +47,7 @@ A web-based Daily Time Record (DTR) system for On-the-Job Training (OJT) student
 1. **Clone and install dependencies**
    ```bash
    git clone https://github.com/brandodt/ojt-dtr.git
-   cd dtr-system
+   cd ojt-dtr
    npm install
    ```
 
