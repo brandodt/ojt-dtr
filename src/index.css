@@ -1,6 +1,87 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --dash-bg: #f3f8f3;
+  --dash-bg-soft: #e7f2ea;
+  --dash-surface: #fdfefd;
+  --dash-surface-2: #f4fbf6;
+  --dash-border: #cde4d3;
+  --dash-text: #123325;
+  --dash-muted: #567266;
+  --dash-accent: #0a8f49;
+  --dash-accent-strong: #056838;
+}
+
+.dark {
+  --dash-bg: #051322;
+  --dash-bg-soft: #0a2237;
+  --dash-surface: #0e2438;
+  --dash-surface-2: #15314a;
+  --dash-border: #24516f;
+  --dash-text: #e9fff5;
+  --dash-muted: #9ac7b7;
+  --dash-accent: #20d57a;
+  --dash-accent-strong: #18bb6c;
+}
+
+@layer base {
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    font-family: 'Sora', 'Segoe UI', sans-serif;
+    color: var(--dash-text);
+    background: radial-gradient(900px circle at 12% 0%, var(--dash-bg-soft) 0%, transparent 52%), var(--dash-bg);
+  }
+}
+
+@layer components {
+  .dash-panel {
+    border: 1px solid var(--dash-border);
+    background: var(--dash-surface);
+    border-radius: 1rem;
+    box-shadow: 0 16px 38px -24px rgba(2, 19, 13, 0.65);
+  }
+
+  .dash-section-title {
+    color: var(--dash-accent);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .dash-input {
+    border: 1px solid var(--dash-border);
+    background: color-mix(in srgb, var(--dash-surface-2) 86%, var(--dash-surface) 14%);
+    color: var(--dash-text);
+    border-radius: 0.7rem;
+    padding: 0.45rem 0.7rem;
+  }
+
+  .dash-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--dash-accent) 45%, transparent);
+  }
+
+  .dash-btn-primary {
+    background: var(--dash-accent);
+    color: #fff;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    transition: transform 140ms ease, filter 140ms ease;
+  }
+
+  .dash-btn-primary:hover {
+    filter: brightness(1.04);
+    transform: translateY(-1px);
+  }
+}
 
 /* Fix Safari/iOS stripping button background colors */
 button {
@@ -11,6 +92,7 @@ button {
 /* Fix iOS Safari stripping input/select backgrounds */
 /* @layer base ensures Tailwind utilities always override this */
 @layer base {
+
   input:not([type="checkbox"]):not([type="radio"]),
   select,
   textarea {
@@ -20,6 +102,7 @@ button {
     color: #111827;
   }
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;

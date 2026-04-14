@@ -98,3 +98,24 @@ CREATE POLICY "Users can update own records"
 CREATE POLICY "Users can delete own records"
   ON public.time_records FOR DELETE
   USING (auth.uid() = user_id);
+
+
+-- 3. Leaderboard view — aggregates student progress for ranking
+CREATE OR REPLACE VIEW public.leaderboard_data AS
+SELECT
+  p.id,
+  p.full_name,
+  p.student_id,
+  p.program,
+  p.course_code,
+  p.total_required_hours,
+  COALESCE(SUM(tr.hours_rendered), 0) as total_hours_rendered,
+  COUNT(CASE WHEN tr.record_type != 'absent' AND tr.hours_rendered > 0 THEN 1 END) as work_days,
+  MAX(tr.created_at) as last_update
+FROM public.profiles p
+LEFT JOIN public.time_records tr ON p.id = tr.user_id
+GROUP BY p.id, p.full_name, p.student_id, p.program, p.course_code, p.total_required_hours;
+
+-- Grant SELECT permission on view to authenticated users
+ALTER TABLE public.leaderboard_data OWNER TO postgres;
+GRANT SELECT ON public.leaderboard_data TO authenticated;

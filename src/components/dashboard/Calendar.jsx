@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, Check, AlertCircle, Minus, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 
@@ -155,49 +155,37 @@ export default function Calendar() {
   const getDayClasses = (status) => {
     switch (status) {
       case 'attended':
-        return 'bg-green-100 dark:bg-green-900/40 text-green-900 dark:text-green-300 border-green-300 dark:border-green-600 font-semibold'
+        return 'bg-emerald-100/90 dark:bg-emerald-900/45 text-emerald-900 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700 font-semibold'
       case 'absent':
-        return 'bg-red-100 dark:bg-red-900/40 text-red-900 dark:text-red-300 border-red-300 dark:border-red-600 font-semibold'
+        return 'bg-rose-100/90 dark:bg-rose-900/40 text-rose-900 dark:text-rose-300 border-rose-300 dark:border-rose-700 font-semibold'
       case 'holiday':
-        return 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-900 dark:text-yellow-300 border-yellow-300 dark:border-yellow-600 font-semibold'
+        return 'bg-amber-100/90 dark:bg-amber-900/40 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-700 font-semibold'
       case 'weekend':
-        return 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+        return 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 border-slate-300 dark:border-slate-600'
       case 'no-record':
-        return 'bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500'
+        return 'bg-white/70 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-300 dark:border-slate-600'
       default:
-        return 'bg-white dark:bg-gray-800 text-gray-300'
+        return 'bg-white/70 dark:bg-slate-800 text-slate-300 border-slate-300 dark:border-slate-600'
     }
   }
 
-  const getDayLabel = (day) => {
-    if (!day) return null
-    const date = new Date(year, month, day)
-    const status = getDayStatus(day)
-
-    if (status === 'absent') return 'absent'
-    if (status === 'attended') return 'attended'
-    if (status === 'holiday') return 'holiday'
-    if (status === 'weekend') return 'weekend'
-    return null
-  }
-
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-5">
+    <div className="dash-panel p-5">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold text-green-800 dark:text-green-400">Attendance Calendar</h3>
-        <div className="flex items-center gap-2">
+      <div className="mb-6">
+        <h3 className="dash-section-title text-lg">Attendance Calendar</h3>
+        <div className="mt-3 flex items-center justify-center gap-2">
           <button
             onClick={handlePrevMonth}
-            className="p-1.5 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors text-green-700 dark:text-green-400"
+            className="shrink-0 rounded-lg border border-[var(--dash-border)] p-1.5 text-[var(--dash-accent)] transition-colors hover:bg-emerald-500/10"
             title="Previous month"
           >
             <ChevronLeft size={20} />
           </button>
-          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 w-40 text-center">{monthName}</span>
+          <span className="max-w-[9.5rem] flex-1 truncate text-center text-sm font-semibold text-[var(--dash-text)]">{monthName}</span>
           <button
             onClick={handleNextMonth}
-            className="p-1.5 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg transition-colors text-green-700 dark:text-green-400"
+            className="shrink-0 rounded-lg border border-[var(--dash-border)] p-1.5 text-[var(--dash-accent)] transition-colors hover:bg-emerald-500/10"
             title="Next month"
           >
             <ChevronRight size={20} />
@@ -206,26 +194,26 @@ export default function Calendar() {
       </div>
 
       {/* Legend */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6 text-xs">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-green-200 dark:bg-green-900/60 border border-green-400 dark:border-green-600"></div>
-          <span className="text-gray-700 dark:text-gray-300">Attended</span>
+      <div className="mb-6 grid grid-cols-2 gap-2 text-xs">
+        <div className="flex items-center gap-2 rounded-lg border border-[var(--dash-border)] bg-white/60 px-2 py-1.5 dark:bg-slate-700/40">
+          <div className="h-3 w-3 rounded border border-emerald-400 bg-emerald-200 dark:bg-emerald-900/60"></div>
+          <span className="text-[var(--dash-muted)]">Attended</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-red-200 dark:bg-red-900/60 border border-red-400 dark:border-red-600"></div>
-          <span className="text-gray-700 dark:text-gray-300">Absent</span>
+        <div className="flex items-center gap-2 rounded-lg border border-[var(--dash-border)] bg-white/60 px-2 py-1.5 dark:bg-slate-700/40">
+          <div className="h-3 w-3 rounded border border-rose-400 bg-rose-200 dark:bg-rose-900/60"></div>
+          <span className="text-[var(--dash-muted)]">Absent</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-yellow-200 dark:bg-yellow-900/60 border border-yellow-400 dark:border-yellow-600"></div>
-          <span className="text-gray-700 dark:text-gray-300">Holiday</span>
+        <div className="flex items-center gap-2 rounded-lg border border-[var(--dash-border)] bg-white/60 px-2 py-1.5 dark:bg-slate-700/40">
+          <div className="h-3 w-3 rounded border border-amber-400 bg-amber-200 dark:bg-amber-900/60"></div>
+          <span className="text-[var(--dash-muted)]">Holiday</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-gray-200 dark:bg-gray-700 border border-gray-300 dark:border-gray-600"></div>
-          <span className="text-gray-700 dark:text-gray-300">Weekend</span>
+        <div className="flex items-center gap-2 rounded-lg border border-[var(--dash-border)] bg-white/60 px-2 py-1.5 dark:bg-slate-700/40">
+          <div className="h-3 w-3 rounded border border-slate-300 bg-slate-200 dark:bg-slate-700"></div>
+          <span className="text-[var(--dash-muted)]">Weekend</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600"></div>
-          <span className="text-gray-700 dark:text-gray-300">No Record</span>
+        <div className="flex items-center gap-2 rounded-lg border border-[var(--dash-border)] bg-white/60 px-2 py-1.5 dark:bg-slate-700/40">
+          <div className="h-3 w-3 rounded border border-slate-300 bg-white/70 dark:bg-slate-800"></div>
+          <span className="text-[var(--dash-muted)]">No Record</span>
         </div>
       </div>
 
@@ -236,12 +224,12 @@ export default function Calendar() {
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <div className="grid grid-cols-7 gap-2 min-w-64">
+          <div className="grid min-w-64 grid-cols-7 gap-2">
             {/* Week day headers */}
             {weekDays.map((day) => (
               <div
                 key={day}
-                className="text-center text-xs font-bold text-gray-600 dark:text-gray-400 py-2"
+                className="py-2 text-center text-xs font-bold text-[var(--dash-muted)]"
               >
                 {day}
               </div>
@@ -250,26 +238,14 @@ export default function Calendar() {
             {/* Days */}
             {days.map((day, index) => {
               const status = getDayStatus(day)
-              const label = getDayLabel(day)
 
               return (
                 <div
                   key={index}
-                  className={`aspect-square flex items-center justify-center rounded-lg border text-sm transition-colors ${
-                    day ? getDayClasses(status) : 'border-transparent'
-                  }`}
+                  className={`aspect-square flex items-center justify-center rounded-lg border text-sm transition-colors ${day ? getDayClasses(status) : 'border-transparent'
+                    }`}
                 >
-                  <div className="flex flex-col items-center justify-center gap-1">
-                    {day && (
-                      <>
-                        <div className="font-medium text-sm">{day}</div>
-                        {label === 'attended' && <Check size={14} />}
-                        {label === 'absent' && <X size={14} />}
-                        {label === 'holiday' && <AlertCircle size={14} />}
-                        {label === 'weekend' && <Minus size={14} />}
-                      </>
-                    )}
-                  </div>
+                  {day && <div className="font-semibold text-sm">{day}</div>}
                 </div>
               )
             })}
@@ -278,20 +254,20 @@ export default function Calendar() {
       )}
 
       {/* Summary Stats */}
-      <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 grid grid-cols-3 gap-3 text-sm">
+      <div className="mt-6 grid grid-cols-3 gap-3 border-t border-[var(--dash-border)] pt-6 text-sm">
         <div className="text-center">
-          <p className="text-2xl font-bold text-green-600 dark:text-green-400">{attendanceDates.size}</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Days Attended</p>
+          <p className="text-2xl font-bold text-emerald-500 dark:text-emerald-400">{attendanceDates.size}</p>
+          <p className="text-xs text-[var(--dash-muted)]">Days Attended</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{getSpecialNonWorkingHolidaySet(year).size}</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Holidays in {year}</p>
+          <p className="text-2xl font-bold text-amber-500 dark:text-amber-400">{getSpecialNonWorkingHolidaySet(year).size}</p>
+          <p className="text-xs text-[var(--dash-muted)]">Holidays in {year}</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-bold text-gray-600 dark:text-gray-400">
+          <p className="text-2xl font-bold text-[var(--dash-muted)]">
             {daysInMonth - attendanceDates.size - Array.from(getSpecialNonWorkingHolidaySet(year)).filter(d => d.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)).length}
           </p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">Days Without Record</p>
+          <p className="text-xs text-[var(--dash-muted)]">Days Without Record</p>
         </div>
       </div>
     </div>

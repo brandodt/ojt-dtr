@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { Printer, Edit2, Trash2, Check, X, Hand, AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
@@ -8,6 +7,7 @@ import { useToast } from '../../context/ToastContext'
 import { printDTR } from './PrintDTR'
 import Counter from '../Counter'
 import SplitText from '../SplitText'
+import { calculateProgress, calcEstimatedCompletion } from '../../lib/calculations'
 
 function formatTime(t) {
   if (!t) return '—'
@@ -30,64 +30,6 @@ function calcHours(timeIn, timeOut) {
   if (raw <= 0) return null
   const net = parseFloat((raw - 1).toFixed(2))
   return net > 0 ? net : null
-}
-
-function toISODateLocal(date) {
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
-}
-
-function getPhilippineHolidaySet(year) {
-  const fixed = [
-    `${year}-01-01`, // New Year's Day
-    `${year}-04-09`, // Araw ng Kagitingan
-    `${year}-05-01`, // Labor Day
-    `${year}-06-12`, // Independence Day
-    `${year}-11-01`, // All Saints' Day
-    `${year}-11-02`, // All Souls' Day
-    `${year}-11-30`, // Bonifacio Day
-    `${year}-12-08`, // Feast of the Immaculate Conception
-    `${year}-12-24`, // Christmas Eve
-    `${year}-12-25`, // Christmas Day
-    `${year}-12-30`, // Rizal Day
-    `${year}-12-31`, // New Year's Eve
-  ]
-
-  // 2026 moving/special holidays used by the app's estimate calculation.
-  const specialByYear = {
-    2026: [
-      '2026-01-23', // First Philippine Republic Day
-      '2026-02-02', // Constitution Day
-      '2026-02-17', // Chinese New Year
-      '2026-02-25', // EDSA Revolution Anniversary
-      '2026-03-03', // Lantern Festival
-      '2026-03-20', // Eid al-Fitr
-      '2026-04-02', // Maundy Thursday
-      '2026-04-03', // Good Friday
-      '2026-04-04', // Black Saturday
-      '2026-04-05', // Easter Sunday
-      '2026-04-27', // Lapu-Lapu Day
-      '2026-05-27', // Eid al-Adha
-      '2026-06-16', // Islamic New Year
-      '2026-06-19', // Jose Rizal's Birthday
-      '2026-07-27', // Iglesia ni Cristo Day
-      '2026-08-21', // Ninoy Aquino Day
-      '2026-08-25', // Birthday of Muhammad (Mawlid)
-      '2026-08-31', // National Heroes' Day
-      '2026-09-25', // Mid-Autumn Festival
-    ],
-  }
-
-  return new Set([...(specialByYear[year] || []), ...fixed])
-}
-
-function isWorkingDayInPH(date) {
-  const day = date.getDay() // 0=Sun, 6=Sat
-  if (day === 0 || day === 6) return false
-  const holidays = getPhilippineHolidaySet(date.getFullYear())
-  return !holidays.has(toISODateLocal(date))
 }
 
 export default function DTRTable({ refresh, supervisor, academicYear, semester }) {
@@ -119,23 +61,12 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
 
   const totalHours = records.reduce((sum, r) => sum + (r.hours_rendered || 0), 0)
   const required = profile?.total_required_hours || 486
-  const remaining = Math.max(0, required - totalHours)
-  const percent = Math.min(100, Math.round((totalHours / required) * 100))
+  const { remaining, percent } = calculateProgress(totalHours, required)
 
   // Estimated completion date (skips weekends and PH holidays)
   const workedDays = records.filter(r => r.record_type !== 'absent' && r.hours_rendered > 0).length
+  const estFinishLabel = calcEstimatedCompletion(totalHours, workedDays, required)
   const avgPerDay = workedDays > 0 ? totalHours / workedDays : 0
-  const estFinishLabel = (() => {
-    if (remaining <= 0) return 'Completed!'
-    if (avgPerDay <= 0) return '—'
-    let daysNeeded = Math.ceil(remaining / avgPerDay)
-    const d = new Date()
-    while (daysNeeded > 0) {
-      d.setDate(d.getDate() + 1)
-      if (isWorkingDayInPH(d)) daysNeeded--
-    }
-    return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })
-  })()
 
   // Initialize bar to 0% so GSAP has full control of the width
   useEffect(() => {
@@ -150,7 +81,7 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
       { width: '0%' },
       { width: `${percent}%`, duration: 1.5, ease: 'power2.out' }
     )
-  }, [loading])
+  }, [loading, percent])
 
   // Stagger table rows when data loads
   useEffect(() => {
@@ -210,13 +141,13 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
 
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-5">
+    <div className="dash-panel p-5">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-bold text-green-800 dark:text-green-400">
+        <h3 className="text-lg font-bold text-[var(--dash-accent)]">
           <SplitText
             text="Daily Time Record"
             tag="span"
-            className="text-lg font-bold text-green-800 dark:text-green-400"
+            className="text-lg font-bold text-[var(--dash-accent)]"
             delay={35}
             duration={0.6}
             ease="back.out(1.4)"
@@ -233,14 +164,14 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
             gsap.to(printBtnRef.current, { scale: 0.93, duration: 0.08, yoyo: true, repeat: 1 })
             printDTR({ profile, user, records, supervisor, academicYear, semester }).catch(console.error)
           }}
-          className="flex items-center gap-2 bg-green-700 hover:bg-green-800 active:bg-green-900 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+          className="dash-btn-primary flex items-center gap-2 px-4 py-2 text-sm"
         >
           <Printer size={15} /> Print DTR
         </button>
       </div>
       {/* Progress bar */}
       <div className="mb-4">
-        <div className="flex justify-between text-xs text-green-700 dark:text-green-400 mb-1">
+        <div className="mb-1 flex justify-between text-xs text-[var(--dash-accent)]">
           <span className="flex items-center gap-1">
             <Counter
               value={Math.round(totalHours)}
@@ -266,14 +197,14 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
             {' '}hrs remaining of {required}
           </span>
         </div>
-        <div className="w-full bg-green-100 dark:bg-gray-700 rounded-full h-3">
+        <div className="h-3 w-full rounded-full bg-emerald-100 dark:bg-slate-700">
           <div
             ref={progressBarRef}
-            className="bg-green-600 h-3 rounded-full"
+            className="h-3 rounded-full bg-emerald-500"
 
           />
         </div>
-        <p className="text-xs text-green-700 dark:text-green-400 mt-1 text-right flex items-center justify-end gap-1">
+        <p className="mt-1 flex items-center justify-end gap-1 text-right text-xs text-[var(--dash-accent)]">
           <Counter
             value={percent}
             fontSize={13}
@@ -285,10 +216,10 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
           />
           % completed
         </p>
-        <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+        <p className="mt-1 text-xs text-[var(--dash-accent)]">
           Est. completion: <span className="font-semibold">{estFinishLabel}</span>
           {avgPerDay > 0 && remaining > 0 && (
-            <span className="text-gray-400 ml-1">(avg {avgPerDay.toFixed(1)} hrs/day)</span>
+            <span className="ml-1 text-[var(--dash-muted)]">(avg {avgPerDay.toFixed(1)} hrs/day)</span>
           )}
         </p>
       </div>
@@ -301,46 +232,46 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
         <div className="overflow-x-auto">
           <table className="w-full text-xs border-collapse">
             <thead>
-              <tr className="bg-green-700 text-white">
-                <th className="border border-green-900 px-2 py-1">#</th>
-                <th className="border border-green-900 px-2 py-1">Date</th>
-                <th className="border border-green-900 px-2 py-1">Time In</th>
-                <th className="border border-green-900 px-2 py-1">Time Out</th>
-                <th className="border border-green-900 px-2 py-1">Hrs</th>
-                <th className="border border-green-900 px-2 py-1">M</th>
-                <th className="border border-green-900 px-2 py-1">Actions</th>
+              <tr className="bg-emerald-700 text-white">
+                <th className="border border-emerald-900/70 px-2 py-1">#</th>
+                <th className="border border-emerald-900/70 px-2 py-1">Date</th>
+                <th className="border border-emerald-900/70 px-2 py-1">Time In</th>
+                <th className="border border-emerald-900/70 px-2 py-1">Time Out</th>
+                <th className="border border-emerald-900/70 px-2 py-1">Hrs</th>
+                <th className="border border-emerald-900/70 px-2 py-1">M</th>
+                <th className="border border-emerald-900/70 px-2 py-1">Actions</th>
               </tr>
             </thead>
             <tbody ref={tbodyRef}>
               {records.map((r, i) => (
-                <tr key={r.id ?? i} className={i % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-green-50 dark:bg-gray-700/60'}>
-                  <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center text-gray-400 dark:text-gray-500">{i + 1}</td>
-                  <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center dark:text-gray-200">{formatDate(r.date)}</td>
+                <tr key={r.id ?? i} className={i % 2 === 0 ? 'bg-white/70 dark:bg-slate-800/80' : 'bg-emerald-50/70 dark:bg-slate-700/60'}>
+                  <td className="border border-[var(--dash-border)] px-2 py-1 text-center text-[var(--dash-muted)]">{i + 1}</td>
+                  <td className="border border-[var(--dash-border)] px-2 py-1 text-center">{formatDate(r.date)}</td>
                   {editId === r.id ? (
                     <>
-                      <td ref={editRowAnimRef} className="border border-gray-300 dark:border-gray-600 px-1 py-1">
+                      <td ref={editRowAnimRef} className="border border-[var(--dash-border)] px-1 py-1">
                         <input
                           type="time"
                           value={editDraft.time_in}
                           onChange={e => setEditDraft(d => ({ ...d, time_in: e.target.value }))}
-                          className="w-full border border-green-300 dark:border-gray-500 dark:bg-gray-700 dark:text-gray-100 rounded px-1 py-0.5 text-xs"
+                          className="dash-input w-full px-1 py-0.5 text-xs"
                         />
                       </td>
-                      <td className="border border-gray-300 dark:border-gray-600 px-1 py-1">
+                      <td className="border border-[var(--dash-border)] px-1 py-1">
                         <input
                           type="time"
                           value={editDraft.time_out}
                           onChange={e => setEditDraft(d => ({ ...d, time_out: e.target.value }))}
-                          className="w-full border border-green-300 dark:border-gray-500 dark:bg-gray-700 dark:text-gray-100 rounded px-1 py-0.5 text-xs"
+                          className="dash-input w-full px-1 py-0.5 text-xs"
                         />
                       </td>
-                      <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center text-gray-400 dark:text-gray-400 text-xs">
+                      <td className="border border-[var(--dash-border)] px-2 py-1 text-center text-xs text-[var(--dash-muted)]">
                         {calcHours(editDraft.time_in, editDraft.time_out) ?? '—'}
                       </td>
-                      <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center">
+                      <td className="border border-[var(--dash-border)] px-2 py-1 text-center">
                         <Hand size={12} className="text-yellow-600 mx-auto" title="Manually encoded" />
                       </td>
-                      <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center">
+                      <td className="border border-[var(--dash-border)] px-2 py-1 text-center">
                         <div className="flex items-center justify-center gap-1">
                           <button onClick={() => saveEdit(r)} className="text-green-700 hover:text-green-900" title="Save"><Check size={13} /></button>
                           <button onClick={() => setEditId(null)} className="text-gray-400 hover:text-gray-600" title="Cancel"><X size={13} /></button>
@@ -350,7 +281,7 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
                   ) : (
                     <>
                       {r.record_type === 'absent' ? (
-                        <td colSpan={2} className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center">
+                        <td colSpan={2} className="border border-[var(--dash-border)] px-2 py-1 text-center">
                           <div className="flex items-center justify-center gap-1.5">
                             <AlertCircle size={13} className="text-red-500" />
                             <span className="text-red-500 font-semibold text-xs">ABSENT</span>
@@ -358,21 +289,21 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
                         </td>
                       ) : (
                         <>
-                          <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center dark:text-gray-200">{formatTime(r.time_in)}</td>
-                          <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center dark:text-gray-200">{formatTime(r.time_out)}</td>
+                          <td className="border border-[var(--dash-border)] px-2 py-1 text-center">{formatTime(r.time_in)}</td>
+                          <td className="border border-[var(--dash-border)] px-2 py-1 text-center">{formatTime(r.time_out)}</td>
                         </>
                       )}
-                      <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center dark:text-gray-200">
+                      <td className="border border-[var(--dash-border)] px-2 py-1 text-center">
                         {r.record_type === 'absent'
                           ? <span className="text-red-400">0</span>
                           : (r.hours_rendered ?? '')}
                       </td>
-                      <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center">
+                      <td className="border border-[var(--dash-border)] px-2 py-1 text-center">
                         {r.record_type === 'absent'
                           ? <AlertCircle size={12} className="text-red-500 mx-auto" title="Absent" />
                           : (r.is_manual ? <Hand size={12} className="text-yellow-600 mx-auto" title="Manually encoded" /> : '')}
                       </td>
-                      <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center">
+                      <td className="border border-[var(--dash-border)] px-2 py-1 text-center">
                         <div className="flex items-center justify-center gap-1">
                           {r.record_type !== 'absent' && (
                             <button
@@ -399,14 +330,14 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
               ))}
             </tbody>
             <tfoot>
-              <tr className="bg-green-100 dark:bg-gray-700 font-bold">
-                <td colSpan={4} className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-right text-green-800 dark:text-green-300">Total Hours:</td>
-                <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center text-green-800 dark:text-green-300">{totalHours.toFixed(0)}</td>
-                <td colSpan={2} className="border border-gray-300 dark:border-gray-600 px-2 py-1"></td>
+              <tr className="bg-emerald-100/80 dark:bg-slate-700 font-bold">
+                <td colSpan={4} className="border border-[var(--dash-border)] px-2 py-1 text-right text-[var(--dash-accent)]">Total Hours:</td>
+                <td className="border border-[var(--dash-border)] px-2 py-1 text-center text-[var(--dash-accent)]">{totalHours.toFixed(0)}</td>
+                <td colSpan={2} className="border border-[var(--dash-border)] px-2 py-1"></td>
               </tr>
             </tfoot>
           </table>
-          <div className="flex flex-wrap gap-4 text-xs text-gray-400 dark:text-gray-500 mt-4 pt-3 border-t border-gray-300 dark:border-gray-600">
+          <div className="mt-4 flex flex-wrap gap-4 border-t border-[var(--dash-border)] pt-3 text-xs text-[var(--dash-muted)]">
             <div className="flex items-center gap-1.5">
               <Hand size={14} className="text-yellow-600" />
               <span className="text-yellow-600 font-semibold">M</span>

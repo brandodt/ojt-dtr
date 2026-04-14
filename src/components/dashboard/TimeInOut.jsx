@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect } from 'react'
-import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { LogIn, LogOut, X, Plus, UserX } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
@@ -76,12 +75,6 @@ export default function TimeInOut({ onRecordSaved }) {
 
   // Past-date rows
   const [rows, setRows] = useState([blankRow()])
-
-  // Callback ref � animates feedback message on mount
-  const msgAnimRef = (el) => {
-    if (!el) return
-    gsap.from(el, { opacity: 0, y: -14, scale: 0.96, duration: 0.32, ease: 'back.out(2)' })
-  }
 
   const showMsg = (type, text) => showToast(type, text)
 
@@ -254,18 +247,18 @@ export default function TimeInOut({ onRecordSaved }) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-5">
+    <div className="dash-panel p-5">
       {/* Tabs */}
       <div className="flex gap-2 mb-5">
         <button
           onClick={() => setMode('today')}
-          className={`flex-1 py-2 rounded-lg font-semibold text-sm transition-colors ${mode === 'today' ? 'bg-green-700 text-white active:bg-green-800' : 'bg-green-50 dark:bg-gray-700 text-green-800 dark:text-green-300 hover:bg-green-100 dark:hover:bg-gray-600 active:bg-green-200'}`}
+          className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-colors ${mode === 'today' ? 'bg-emerald-600 text-white' : 'border border-[var(--dash-border)] bg-[var(--dash-surface-2)] text-[var(--dash-accent)] hover:bg-emerald-500/10'}`}
         >
           Today&apos;s Attendance
         </button>
         <button
           onClick={() => setMode('past')}
-          className={`flex-1 py-2 rounded-lg font-semibold text-sm transition-colors ${mode === 'past' ? 'bg-yellow-600 text-white active:bg-yellow-700' : 'bg-yellow-50 dark:bg-gray-700 text-yellow-800 dark:text-yellow-300 hover:bg-yellow-100 dark:hover:bg-gray-600 active:bg-yellow-200'}`}
+          className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-colors ${mode === 'past' ? 'bg-amber-500 text-white' : 'border border-[var(--dash-border)] bg-[var(--dash-surface-2)] text-amber-500 hover:bg-amber-500/10'}`}
         >
           Encode Past Date
         </button>
@@ -276,14 +269,14 @@ export default function TimeInOut({ onRecordSaved }) {
       {/* TODAY MODE */}
       {mode === 'today' && (
         <div ref={modeContentRef} className="space-y-3">
-          <label className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg px-3 py-2 text-sm cursor-pointer select-none">
+          <label className="flex cursor-pointer select-none items-center gap-2 rounded-lg border border-sky-300/70 bg-sky-50/70 px-3 py-2 text-sm dark:border-sky-700/70 dark:bg-sky-900/20">
             <input
               type="checkbox"
               checked={todaySchedule === 'temp_8hr'}
               onChange={e => setTodaySchedule(e.target.checked ? 'temp_8hr' : 'standard')}
               className="accent-green-700 w-4 h-4"
             />
-            <span className="text-blue-800 dark:text-blue-200 font-medium">
+            <span className="font-medium text-sky-800 dark:text-sky-200">
               Use Temp Schedule (8:30 AM &ndash; 5:00 PM = <strong>8 hrs</strong>)
             </span>
           </label>
@@ -295,7 +288,7 @@ export default function TimeInOut({ onRecordSaved }) {
                 handleTimeIn()
               }}
               disabled={loading}
-              className="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold py-6 rounded-xl text-lg transition-colors disabled:opacity-60 shadow flex items-center justify-center gap-2"
+              className="dash-btn-primary flex items-center justify-center gap-2 rounded-xl py-6 text-lg font-bold text-white shadow disabled:opacity-60"
             >
               <LogIn size={20} /> TIME IN
             </button>
@@ -306,7 +299,7 @@ export default function TimeInOut({ onRecordSaved }) {
                 handleTimeOut()
               }}
               disabled={loading}
-              className="bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold py-6 rounded-xl text-lg transition-colors disabled:opacity-60 shadow flex items-center justify-center gap-2"
+              className="flex items-center justify-center gap-2 rounded-xl bg-rose-600 py-6 text-lg font-bold text-white shadow transition-all hover:-translate-y-[1px] hover:brightness-105 disabled:opacity-60"
             >
               <LogOut size={20} /> TIME OUT
             </button>
@@ -319,13 +312,13 @@ export default function TimeInOut({ onRecordSaved }) {
                 setConfirmAbsent(true)
               }}
               disabled={loading}
-              className="w-full bg-gray-100 dark:bg-gray-700 hover:bg-red-50 dark:hover:bg-red-900/30 border border-red-200 dark:border-red-700 hover:border-red-400 text-red-600 dark:text-red-400 hover:text-red-700 font-semibold py-2.5 rounded-xl text-sm transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-300/70 bg-rose-50/70 py-2.5 text-sm font-semibold text-rose-600 transition-colors hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-900/20 dark:text-rose-300 disabled:opacity-60"
             >
               <UserX size={16} /> Mark as Absent Today
             </button>
           ) : (
-            <div ref={confirmPanelRef} className="w-full bg-red-50 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-xl px-4 py-3 flex flex-col gap-2">
-              <p className="text-sm text-red-700 dark:text-red-300 font-semibold text-center">Are you sure you want to mark today as absent?</p>
+            <div ref={confirmPanelRef} className="flex w-full flex-col gap-2 rounded-xl border border-rose-300 bg-rose-50 px-4 py-3 dark:border-rose-700 dark:bg-rose-900/25">
+              <p className="text-center text-sm font-semibold text-rose-700 dark:text-rose-300">Are you sure you want to mark today as absent?</p>
               <div className="flex gap-2">
                 <button
                   onClick={() => {
@@ -333,14 +326,14 @@ export default function TimeInOut({ onRecordSaved }) {
                     handleMarkAbsent()
                   }}
                   disabled={loading}
-                  className="flex-1 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold py-2 rounded-lg text-sm transition-colors disabled:opacity-60 flex items-center justify-center gap-1"
+                  className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-rose-600 py-2 text-sm font-bold text-white transition-colors hover:bg-rose-700 disabled:opacity-60"
                 >
                   <UserX size={14} /> Yes, Mark Absent
                 </button>
                 <button
                   onClick={() => setConfirmAbsent(false)}
                   disabled={loading}
-                  className="flex-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold py-2 rounded-lg text-sm transition-colors disabled:opacity-60"
+                  className="flex-1 rounded-lg border border-[var(--dash-border)] bg-[var(--dash-surface-2)] py-2 text-sm font-semibold text-[var(--dash-muted)] transition-colors hover:brightness-110 disabled:opacity-60"
                 >
                   Cancel
                 </button>
@@ -358,27 +351,27 @@ export default function TimeInOut({ onRecordSaved }) {
               {rows.map((row, i) => (
                 <div
                   key={i}
-                  className={`border rounded-lg p-3 space-y-2 ${row.type === 'absent' ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700' : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-700'}`}
+                  className={`space-y-2 rounded-lg border p-3 ${row.type === 'absent' ? 'border-rose-300 bg-rose-50/70 dark:border-rose-800 dark:bg-rose-900/20' : 'border-amber-300 bg-amber-50/70 dark:border-amber-800 dark:bg-amber-900/20'}`}
                 >
                   {/* Date + Type + Remove */}
                   <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-end">
                     <div>
-                      <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Date</label>
+                      <label className="mb-1 block text-xs font-medium text-[var(--dash-accent)]">Date</label>
                       <input
                         type="date"
                         value={row.date}
                         max={todayStr()}
                         onChange={e => updateRow(i, 'date', e.target.value)}
                         required
-                        className="w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-green-300 dark:border-gray-500 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="dash-input w-full text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Type</label>
+                      <label className="mb-1 block text-xs font-medium text-[var(--dash-accent)]">Type</label>
                       <select
                         value={row.type}
                         onChange={e => updateRow(i, 'type', e.target.value)}
-                        className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-green-300 dark:border-gray-500 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="dash-input text-sm"
                       >
                         <option value="regular">Regular Duty</option>
                         <option value="absent">Absent</option>
@@ -398,30 +391,30 @@ export default function TimeInOut({ onRecordSaved }) {
                   {row.type === 'regular' && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 items-end">
                       <div>
-                        <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Time In</label>
+                        <label className="mb-1 block text-xs font-medium text-[var(--dash-accent)]">Time In</label>
                         <input
                           type="time"
                           value={row.timeIn}
                           onChange={e => updateRow(i, 'timeIn', e.target.value)}
                           required
-                          className="w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-green-300 dark:border-gray-500 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                          className="dash-input w-full text-sm"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Time Out</label>
+                        <label className="mb-1 block text-xs font-medium text-[var(--dash-accent)]">Time Out</label>
                         <input
                           type="time"
                           value={row.timeOut}
                           onChange={e => updateRow(i, 'timeOut', e.target.value)}
-                          className="w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-green-300 dark:border-gray-500 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                          className="dash-input w-full text-sm"
                         />
                       </div>
                       <div className="col-span-2 sm:col-span-1">
-                        <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Schedule</label>
+                        <label className="mb-1 block text-xs font-medium text-[var(--dash-accent)]">Schedule</label>
                         <select
                           value={row.schedule}
                           onChange={e => updateRow(i, 'schedule', e.target.value)}
-                          className="w-full border border-green-300 dark:border-gray-500 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                          className="dash-input w-full text-sm"
                         >
                           <option value="standard">Standard (auto)</option>
                           <option value="temp_8hr">Temp (8 hrs)</option>
@@ -440,7 +433,7 @@ export default function TimeInOut({ onRecordSaved }) {
             <button
               type="button"
               onClick={addRow}
-              className="w-full border-2 border-dashed border-yellow-400 dark:border-yellow-600 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 active:bg-yellow-100 text-sm font-semibold py-2 rounded-lg transition-colors flex items-center justify-center gap-1"
+              className="flex w-full items-center justify-center gap-1 rounded-lg border-2 border-dashed border-amber-400 py-2 text-sm font-semibold text-amber-700 transition-colors hover:bg-amber-50 dark:border-amber-700 dark:text-amber-300 dark:hover:bg-amber-900/20"
             >
               <Plus size={15} /> Add Another Date
             </button>
@@ -448,7 +441,7 @@ export default function TimeInOut({ onRecordSaved }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-yellow-600 hover:bg-yellow-700 active:bg-yellow-800 text-white font-semibold py-2 rounded-lg transition-colors disabled:opacity-60"
+              className="w-full rounded-lg bg-amber-500 py-2 font-semibold text-white transition-colors hover:bg-amber-600 disabled:opacity-60"
             >
               {loading ? 'Saving...' : `Save ${rows.length} Record${rows.length > 1 ? 's' : ''}`}
             </button>

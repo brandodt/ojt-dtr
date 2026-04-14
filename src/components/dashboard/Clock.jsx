@@ -30,11 +30,11 @@ export default function Clock() {
   const dateStr = now.toLocaleDateString('en-PH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 
   return (
-    <div className="bg-green-800 text-white rounded-xl p-5 text-center shadow">
-      <p className="text-green-200 text-sm mb-1">{dateStr}</p>
-      <p className="text-4xl font-bold tracking-widest font-mono">
+    <div className="dash-panel bg-emerald-700 px-5 py-4 text-center text-white">
+      <p className="mb-1 text-sm text-emerald-100/90">{dateStr}</p>
+      <p className="font-mono text-[2.15rem] font-bold tracking-[0.2em] sm:text-[2.45rem]">
         {h}:{m}:<span ref={secRef} className="inline-block">{s}</span>
-        <span className="text-2xl ml-2 font-semibold text-green-300">{ampm}</span>
+        <span className="ml-2 text-2xl font-semibold text-emerald-100">{ampm}</span>
       </p>
     </div>
   )
