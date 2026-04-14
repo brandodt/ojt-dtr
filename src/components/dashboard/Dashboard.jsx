@@ -1,12 +1,13 @@
 import { useRef, useState } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { LogOut, Edit2, X, Check, Sun, Moon } from 'react-feather'
+import { LogOut, Edit2, X, Check, Sun, Moon } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useDarkMode } from '../../lib/useDarkMode'
 import Clock from './Clock'
 import TimeInOut from './TimeInOut'
 import DTRTable from './DTRTable'
+import Calendar from './Calendar'
 
 export default function Dashboard() {
   const { user, profile, signOut } = useAuth()
@@ -40,8 +41,10 @@ export default function Dashboard() {
     if (darkToggleRef.current) {
       gsap.fromTo(darkToggleRef.current,
         { rotate: 0, scale: 1 },
-        { rotate: 360, scale: 1.25, duration: 0.45, ease: 'back.out(1.5)',
-          onComplete: () => gsap.set(darkToggleRef.current, { rotate: 0, scale: 1 }) }
+        {
+          rotate: 360, scale: 1.25, duration: 0.45, ease: 'back.out(1.5)',
+          onComplete: () => gsap.set(darkToggleRef.current, { rotate: 0, scale: 1 })
+        }
       )
     }
     toggleDark()
@@ -215,6 +218,9 @@ export default function Dashboard() {
 
         {/* Time In / Out */}
         <div className="dash-card"><TimeInOut onRecordSaved={() => setRefresh(r => r + 1)} /></div>
+
+        {/* Calendar */}
+        <div className="dash-card"><Calendar /></div>
 
         {/* DTR Table */}
         <div className="dash-card"><DTRTable refresh={refresh} supervisor={supervisor} academicYear={academicYear} semester={semester} /></div>

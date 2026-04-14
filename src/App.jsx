@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Settings } from 'react-feather'
+import { Settings } from 'lucide-react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import Login from './components/auth/Login'

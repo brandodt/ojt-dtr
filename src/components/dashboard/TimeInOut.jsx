@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { LogIn, LogOut, X, Plus, UserX } from 'react-feather'
+import { LogIn, LogOut, X, Plus, UserX } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -353,106 +353,106 @@ export default function TimeInOut({ onRecordSaved }) {
       {/* PAST DATE MODE */}
       {mode === 'past' && (
         <div ref={modeContentRef}>
-        <form onSubmit={handlePastSave} className="space-y-3">
-          <div className="space-y-2">
-            {rows.map((row, i) => (
-              <div
-                key={i}
-                className={`border rounded-lg p-3 space-y-2 ${row.type === 'absent' ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700' : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-700'}`}
-              >
-                {/* Date + Type + Remove */}
-                <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-end">
-                  <div>
-                    <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Date</label>
-                    <input
-                      type="date"
-                      value={row.date}
-                      max={todayStr()}
-                      onChange={e => updateRow(i, 'date', e.target.value)}
-                      required
-                      className="w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-green-300 dark:border-gray-500 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Type</label>
-                    <select
-                      value={row.type}
-                      onChange={e => updateRow(i, 'type', e.target.value)}
-                      className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-green-300 dark:border-gray-500 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    >
-                      <option value="regular">Regular Duty</option>
-                      <option value="absent">Absent</option>
-                    </select>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeRow(i)}
-                    className="text-red-400 hover:text-red-600 px-1 pb-1"
-                    title="Remove row"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-
-                {/* Time In/Out + Schedule (regular only) */}
-                {row.type === 'regular' && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 items-end">
+          <form onSubmit={handlePastSave} className="space-y-3">
+            <div className="space-y-2">
+              {rows.map((row, i) => (
+                <div
+                  key={i}
+                  className={`border rounded-lg p-3 space-y-2 ${row.type === 'absent' ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700' : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-700'}`}
+                >
+                  {/* Date + Type + Remove */}
+                  <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-end">
                     <div>
-                      <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Time In</label>
+                      <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Date</label>
                       <input
-                        type="time"
-                        value={row.timeIn}
-                        onChange={e => updateRow(i, 'timeIn', e.target.value)}
+                        type="date"
+                        value={row.date}
+                        max={todayStr()}
+                        onChange={e => updateRow(i, 'date', e.target.value)}
                         required
                         className="w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-green-300 dark:border-gray-500 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Time Out</label>
-                      <input
-                        type="time"
-                        value={row.timeOut}
-                        onChange={e => updateRow(i, 'timeOut', e.target.value)}
-                        className="w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-green-300 dark:border-gray-500 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                      />
-                    </div>
-                    <div className="col-span-2 sm:col-span-1">
-                      <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Schedule</label>
+                      <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Type</label>
                       <select
-                        value={row.schedule}
-                        onChange={e => updateRow(i, 'schedule', e.target.value)}
-                        className="w-full border border-green-300 dark:border-gray-500 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                        value={row.type}
+                        onChange={e => updateRow(i, 'type', e.target.value)}
+                        className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-green-300 dark:border-gray-500 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                       >
-                        <option value="standard">Standard (auto)</option>
-                        <option value="temp_8hr">Temp (8 hrs)</option>
+                        <option value="regular">Regular Duty</option>
+                        <option value="absent">Absent</option>
                       </select>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => removeRow(i)}
+                      className="text-red-400 hover:text-red-600 px-1 pb-1"
+                      title="Remove row"
+                    >
+                      <X size={16} />
+                    </button>
                   </div>
-                )}
 
-                {row.type === 'absent' && (
-                  <p className="text-xs text-red-600 font-medium italic">Marked as absent  0 hrs rendered</p>
-                )}
-              </div>
-            ))}
-          </div>
+                  {/* Time In/Out + Schedule (regular only) */}
+                  {row.type === 'regular' && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 items-end">
+                      <div>
+                        <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Time In</label>
+                        <input
+                          type="time"
+                          value={row.timeIn}
+                          onChange={e => updateRow(i, 'timeIn', e.target.value)}
+                          required
+                          className="w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-green-300 dark:border-gray-500 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Time Out</label>
+                        <input
+                          type="time"
+                          value={row.timeOut}
+                          onChange={e => updateRow(i, 'timeOut', e.target.value)}
+                          className="w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-green-300 dark:border-gray-500 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                      </div>
+                      <div className="col-span-2 sm:col-span-1">
+                        <label className="block text-xs font-medium text-green-800 dark:text-green-300 mb-1">Schedule</label>
+                        <select
+                          value={row.schedule}
+                          onChange={e => updateRow(i, 'schedule', e.target.value)}
+                          className="w-full border border-green-300 dark:border-gray-500 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                        >
+                          <option value="standard">Standard (auto)</option>
+                          <option value="temp_8hr">Temp (8 hrs)</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
 
-          <button
-            type="button"
-            onClick={addRow}
-            className="w-full border-2 border-dashed border-yellow-400 dark:border-yellow-600 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 active:bg-yellow-100 text-sm font-semibold py-2 rounded-lg transition-colors flex items-center justify-center gap-1"
-          >
-            <Plus size={15} /> Add Another Date
-          </button>
+                  {row.type === 'absent' && (
+                    <p className="text-xs text-red-600 font-medium italic">Marked as absent  0 hrs rendered</p>
+                  )}
+                </div>
+              ))}
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-yellow-600 hover:bg-yellow-700 active:bg-yellow-800 text-white font-semibold py-2 rounded-lg transition-colors disabled:opacity-60"
-          >
-            {loading ? 'Saving...' : `Save ${rows.length} Record${rows.length > 1 ? 's' : ''}`}
-          </button>
-        </form>
+            <button
+              type="button"
+              onClick={addRow}
+              className="w-full border-2 border-dashed border-yellow-400 dark:border-yellow-600 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 active:bg-yellow-100 text-sm font-semibold py-2 rounded-lg transition-colors flex items-center justify-center gap-1"
+            >
+              <Plus size={15} /> Add Another Date
+            </button>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-yellow-600 hover:bg-yellow-700 active:bg-yellow-800 text-white font-semibold py-2 rounded-lg transition-colors disabled:opacity-60"
+            >
+              {loading ? 'Saving...' : `Save ${rows.length} Record${rows.length > 1 ? 's' : ''}`}
+            </button>
+          </form>
         </div>
       )}
     </div>

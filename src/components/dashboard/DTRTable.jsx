@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { Printer, Edit2, Trash2, Check, X } from 'react-feather'
+import { Printer, Edit2, Trash2, Check, X, Hand, AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -338,7 +338,7 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
                         {calcHours(editDraft.time_in, editDraft.time_out) ?? '—'}
                       </td>
                       <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center">
-                        <span className="text-yellow-600 font-bold">M</span>
+                        <Hand size={12} className="text-yellow-600 mx-auto" title="Manually encoded" />
                       </td>
                       <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center">
                         <div className="flex items-center justify-center gap-1">
@@ -351,7 +351,10 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
                     <>
                       {r.record_type === 'absent' ? (
                         <td colSpan={2} className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center">
-                          <span className="text-red-500 font-bold">ABSENT</span>
+                          <div className="flex items-center justify-center gap-1.5">
+                            <AlertCircle size={13} className="text-red-500" />
+                            <span className="text-red-500 font-semibold text-xs">ABSENT</span>
+                          </div>
                         </td>
                       ) : (
                         <>
@@ -366,8 +369,8 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
                       </td>
                       <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center">
                         {r.record_type === 'absent'
-                          ? <span className="text-red-500 font-bold">A</span>
-                          : (r.is_manual ? <span className="text-yellow-600 font-bold">M</span> : '')}
+                          ? <AlertCircle size={12} className="text-red-500 mx-auto" title="Absent" />
+                          : (r.is_manual ? <Hand size={12} className="text-yellow-600 mx-auto" title="Manually encoded" /> : '')}
                       </td>
                       <td className="border border-gray-300 dark:border-gray-600 px-2 py-1 text-center">
                         <div className="flex items-center justify-center gap-1">
@@ -403,12 +406,28 @@ export default function DTRTable({ refresh, supervisor, academicYear, semester }
               </tr>
             </tfoot>
           </table>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-            <span className="text-yellow-600 font-bold">M</span> = manually encoded &nbsp;
-            <span className="text-red-500 font-bold">A</span> = absent (not counted) &nbsp;
-            <span className="text-blue-500 font-bold">✎</span> = edit &nbsp;
-            <span className="text-red-400 font-bold">🗑</span> = delete
-          </p>
+          <div className="flex flex-wrap gap-4 text-xs text-gray-400 dark:text-gray-500 mt-4 pt-3 border-t border-gray-300 dark:border-gray-600">
+            <div className="flex items-center gap-1.5">
+              <Hand size={14} className="text-yellow-600" />
+              <span className="text-yellow-600 font-semibold">M</span>
+              <span>= manually encoded</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <AlertCircle size={14} className="text-red-500" />
+              <span className="text-red-500 font-semibold">A</span>
+              <span>= absent (not counted)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Edit2 size={14} className="text-blue-500" />
+              <span className="text-blue-500 font-semibold">E</span>
+              <span>= edit</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Trash2 size={14} className="text-red-400" />
+              <span className="text-red-400 font-semibold">D</span>
+              <span>= delete</span>
+            </div>
+          </div>
         </div>
       )}
     </div>
