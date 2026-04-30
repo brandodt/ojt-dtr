@@ -37,14 +37,17 @@ async function toDataUrl(url) {
   }
 }
 
-export async function printDTR({ profile, user, records, supervisor, academicYear, semester }) {
-  const sup = supervisor || 'Mr. Mark Anthony Q. Pesigan'
-  const ay = academicYear || '2025 - 2026'
-  const sem = semester || '2nd'
-  // Exclude absent records from the printed DTR
-  const printable = records.filter(r => r.record_type !== 'absent')
-  const left = printable.slice(0, 24)
-  const right = printable.slice(24, 48)
+function chunkRows(records, size) {
+  const chunks = []
+  for (let i = 0; i < records.length; i += size) {
+    chunks.push(records.slice(i, i + size))
+  }
+  return chunks
+}
+
+function buildPageHtml({ pageRecords, supervisor, ay, sem, name, courseCode, totalRequired, cvsuLogoSrc, bagongLogoSrc }) {
+  const left = pageRecords.slice(0, 24)
+  const right = pageRecords.slice(24, 48)
   const rows = Array.from({ length: 24 }, (_, i) => ({
     l: buildRow(left[i]),
     r: buildRow(right[i]),
@@ -52,6 +55,105 @@ export async function printDTR({ profile, user, records, supervisor, academicYea
 
   const totalLeft = left.reduce((s, r) => s + (parseFloat(r.hours_rendered) || 0), 0)
   const totalRight = right.reduce((s, r) => s + (parseFloat(r.hours_rendered) || 0), 0)
+
+  const rowsHtml = rows.map(({ l, r }) => `
+    <tr>
+      <td>${l.date}</td><td>${l.timeIn}</td><td>${l.timeOut}</td><td>${l.hours}</td><td>${l.sig}</td>
+      <td>${r.date}</td><td>${r.timeIn}</td><td>${r.timeOut}</td><td>${r.hours}</td><td>${r.sig}</td>
+    </tr>`).join('')
+
+  return `
+  <div class="page">
+    <div class="header">
+      <img class="header-logo" src="${cvsuLogoSrc}" alt="CSU Logo"/>
+      <div class="header-center">
+        <div class="univ-name">CAVITE STATE UNIVERSITY</div>
+        <div class="campus-name">Imus Campus</div>
+        <div class="address">Cavite Civic Center Palico IV, Imus, Cavite</div>
+        <div class="phones">(046) 471-66-07 / (046) 471-67-70/ (046) 686-2349</div>
+        <div class="website">www.cvsu.edu.ph</div>
+      </div>
+      <img class="header-logo" src="${bagongLogoSrc}" alt="Bagong Pilipinas"/>
+    </div>
+
+    <div class="program-subtitle">On-the-Job Training (OJT) Program</div>
+    <br/>
+    <div class="form-title">DAILY TIME RECORD</div>
+
+    <div class="info-section">
+      <div class="info-row">
+        <span class="left">
+          <span class="info-label">Name: </span>
+          <span class="info-value">${name}</span>
+        </span>
+        <span class="right">
+          <span class="info-label">Program Code: </span>
+          <span class="info-value">${courseCode}</span>
+        </span>
+      </div>
+      <div>
+        <span class="info-label">Total No. of Hours to be completed: </span>
+        <span class="info-value">${totalRequired} Hours</span>
+      </div>
+      <div class="semester-row">
+        <span>${sem === '1st' ? '( x )' : '(  )'} 1st Semester</span>
+        <span>${sem === '2nd' ? '( x )' : '(  )'} 2nd Semester</span>
+        <span>${sem === 'Summer' ? '( x )' : '(  )'} Summer</span>
+        <span class="ay">
+          <span class="info-label">Academic Year </span>
+          <span class="info-value">${ay}</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="dtr-table-wrapper">
+      <table class="dtr-table">
+        <colgroup>
+          <col class="col-date"/><col class="col-timein"/><col class="col-timeout"/>
+          <col class="col-hours"/><col class="col-sig"/>
+          <col class="col-date"/><col class="col-timein"/><col class="col-timeout"/>
+          <col class="col-hours"/><col class="col-sig"/>
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Date</th><th>Time<br/>In</th><th>Time<br/>Out</th><th>Hours</th><th>Signature</th>
+            <th>Date</th><th>Time<br/>In</th><th>Time<br/>Out</th><th>Hours</th><th>Signature</th>
+          </tr>
+        </thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    </div>
+
+    <div class="totals-row">
+      <div class="total-block">
+        <span>Total No. of Hours:</span>
+        <span class="total-box">${totalLeft > 0 ? totalLeft.toFixed(0) : ''}</span>
+      </div>
+      <div class="total-block">
+        <span>Total No. of Hours:</span>
+        <span class="total-box">${totalRight > 0 ? totalRight.toFixed(0) : ''}</span>
+      </div>
+    </div>
+    <br/>
+    <div class="attestation">
+      <span class="att-label">Attested by:</span>
+      <div class="att-signee">
+        <div class="att-name">${supervisor}</div>
+        <div>Supervisor or Head of Host Agency</div>
+        <div>(Signature Over Printed Name)</div>
+      </div>
+    </div>
+  </div>`
+}
+
+export async function printDTR({ profile, user, records, supervisor, academicYear, semester }) {
+  const sup = supervisor || 'Mr. Mark Anthony Q. Pesigan'
+  const ay = academicYear || '2025 - 2026'
+  const sem = semester || '2nd'
+  // Exclude absent records from the printed DTR
+  const printable = records.filter(r => r.record_type !== 'absent')
+  const pages = chunkRows(printable, 48)
+  if (pages.length === 0) pages.push([])
 
   const meta = user?.user_metadata || {}
   const name = profile?.full_name || meta.full_name || ''
@@ -63,11 +165,17 @@ export async function printDTR({ profile, user, records, supervisor, academicYea
     toDataUrl(`${baseUrl}/bagong-pilipinas-logo.png`),
   ])
 
-  const rowsHtml = rows.map(({ l, r }) => `
-    <tr>
-      <td>${l.date}</td><td>${l.timeIn}</td><td>${l.timeOut}</td><td>${l.hours}</td><td>${l.sig}</td>
-      <td>${r.date}</td><td>${r.timeIn}</td><td>${r.timeOut}</td><td>${r.hours}</td><td>${r.sig}</td>
-    </tr>`).join('')
+  const pagesHtml = pages.map((pageRecords) => buildPageHtml({
+    pageRecords,
+    supervisor: sup,
+    ay,
+    sem,
+    name,
+    courseCode,
+    totalRequired,
+    cvsuLogoSrc,
+    bagongLogoSrc,
+  })).join('')
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -77,8 +185,9 @@ export async function printDTR({ profile, user, records, supervisor, academicYea
   <title>Daily Time Record - OJT</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:Arial,sans-serif; background:#fff; display:flex; justify-content:center; padding:20px; }
-    .page { width:564px; background:#fff; padding:28px 36px 36px 36px; border:1px solid #ccc; }
+    body { font-family:Arial,sans-serif; background:#fff; display:block; padding:20px 0; }
+    .page { width:564px; background:#fff; padding:28px 36px 36px 36px; border:1px solid #ccc; margin:0 auto 16px; page-break-after:always; break-after:page; }
+    .page:last-child { page-break-after:auto; break-after:auto; margin-bottom:0; }
     .header { display:flex; align-items:center; justify-content:space-between; padding-bottom:10px; border-bottom:1.5px solid #000; margin-bottom:8px; }
     .header-logo { width:80px; height:auto; }
     .header-center { text-align:center; flex:1; line-height:1.35; }
@@ -112,95 +221,16 @@ export async function printDTR({ profile, user, records, supervisor, academicYea
     .attestation .att-label { white-space:nowrap; }
     .attestation .att-signee { line-height:1.5; }
     .attestation .att-signee .att-name { font-weight:bold; }
+    .page-footer { margin-top:8px; font-size:10px; text-align:right; color:#444; }
     @media print {
       @page { size:A4 portrait; margin:12mm 20mm; }
-      body { padding:0; background:#fff; display:flex; justify-content:center; }
-      .page { border:none !important; width:490px; padding:0; box-shadow:none; }
+      body { padding:0; background:#fff; display:block; }
+      .page { border:none !important; width:490px; padding:0; box-shadow:none; margin:0 auto; }
     }
   </style>
 </head>
 <body>
-<div class="page">
-  <div class="header">
-    <img class="header-logo" src="${cvsuLogoSrc}" alt="CSU Logo"/>
-    <div class="header-center">
-      <div class="univ-name">CAVITE STATE UNIVERSITY</div>
-      <div class="campus-name">Imus Campus</div>
-      <div class="address">Cavite Civic Center Palico IV, Imus, Cavite</div>
-      <div class="phones">(046) 471-66-07 / (046) 471-67-70/ (046) 686-2349</div>
-      <div class="website">www.cvsu.edu.ph</div>
-    </div>
-    <img class="header-logo" src="${bagongLogoSrc}" alt="Bagong Pilipinas"/>
-  </div>
-
-  <div class="program-subtitle">On-the-Job Training (OJT) Program</div>
-  <br/>
-  <div class="form-title">DAILY TIME RECORD</div>
-
-  <div class="info-section">
-    <div class="info-row">
-      <span class="left">
-        <span class="info-label">Name: </span>
-        <span class="info-value">${name}</span>
-      </span>
-      <span class="right">
-        <span class="info-label">Program Code: </span>
-        <span class="info-value">${courseCode}</span>
-      </span>
-    </div>
-    <div>
-      <span class="info-label">Total No. of Hours to be completed: </span>
-      <span class="info-value">${totalRequired} Hours</span>
-    </div>
-    <div class="semester-row">
-      <span>${sem === '1st' ? '( x )' : '(  )'} 1st Semester</span>
-      <span>${sem === '2nd' ? '( x )' : '(  )'} 2nd Semester</span>
-      <span>${sem === 'Summer' ? '( x )' : '(  )'} Summer</span>
-      <span class="ay">
-        <span class="info-label">Academic Year </span>
-        <span class="info-value">${ay}</span>
-      </span>
-    </div>
-  </div>
-
-  <div class="dtr-table-wrapper">
-    <table class="dtr-table">
-      <colgroup>
-        <col class="col-date"/><col class="col-timein"/><col class="col-timeout"/>
-        <col class="col-hours"/><col class="col-sig"/>
-        <col class="col-date"/><col class="col-timein"/><col class="col-timeout"/>
-        <col class="col-hours"/><col class="col-sig"/>
-      </colgroup>
-      <thead>
-        <tr>
-          <th>Date</th><th>Time<br/>In</th><th>Time<br/>Out</th><th>Hours</th><th>Signature</th>
-          <th>Date</th><th>Time<br/>In</th><th>Time<br/>Out</th><th>Hours</th><th>Signature</th>
-        </tr>
-      </thead>
-      <tbody>${rowsHtml}</tbody>
-    </table>
-  </div>
-
-  <div class="totals-row">
-    <div class="total-block">
-      <span>Total No. of Hours:</span>
-      <span class="total-box">${totalLeft > 0 ? totalLeft.toFixed(0) : ''}</span>
-    </div>
-    <div class="total-block">
-      <span>Total No. of Hours:</span>
-      <span class="total-box">${totalRight > 0 ? totalRight.toFixed(0) : ''}</span>
-    </div>
-  </div>
-  <br/>
-  <div class="attestation">
-    <span class="att-label">Attested by:</span>
-    <div class="att-signee">
-      <div class="att-name">${sup}</div>
-      <div>Supervisor or Head of Host Agency</div>
-      <div>(Signature Over Printed Name)</div>
-    </div>
-  </div>
-</div>
+${pagesHtml}
 </body>
 </html>`
 
