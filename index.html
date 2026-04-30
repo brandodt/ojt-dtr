@@ -1,40 +1,50 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/cvsu-logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OJT DTR System — CvSU Imus</title>
 
-    <!-- Primary Meta -->
-    <meta name="title" content="OJT DTR System — CvSU Imus" />
-    <meta name="description" content="Daily Time Record (DTR) system for OJT students of Cavite State University – Imus Campus. Track time-in, time-out, and generate printable DTR reports." />
-    <meta name="author" content="CvSU Imus OJT" />
-    <meta name="keywords" content="DTR, OJT, Daily Time Record, CvSU, Cavite State University, Imus, internship, time tracking" />
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/cvsu-logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OJT DTR System — CvSU Imus</title>
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://ojt-dtr-seven.vercel.app/" />
-    <meta property="og:title" content="OJT DTR System — CvSU Imus" />
-    <meta property="og:description" content="Daily Time Record (DTR) system for OJT students of Cavite State University – Imus Campus. Track time-in, time-out, and generate printable DTR reports." />
-    <meta property="og:image" content="https://ojt-dtr-seven.vercel.app/cvsu-logo.png" />
+  <!-- Primary Meta -->
+  <meta name="title" content="OJT DTR System — CvSU Imus" />
+  <meta name="description"
+    content="Daily Time Record (DTR) system for OJT students of Cavite State University – Imus Campus. Track time-in, time-out, and generate printable DTR reports." />
+  <meta name="author" content="CvSU Imus OJT" />
+  <meta name="keywords"
+    content="DTR, OJT, Daily Time Record, CvSU, Cavite State University, Imus, internship, time tracking" />
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="OJT DTR System — CvSU Imus" />
-    <meta name="twitter:description" content="Daily Time Record (DTR) system for OJT students of Cavite State University – Imus Campus. Track time-in, time-out, and generate printable DTR reports." />
-    <meta name="twitter:image" content="https://ojt-dtr-seven.vercel.app/cvsu-logo.png" />
-  </head>
-  <body>
-    <script>
-      (function(){
-        var t=localStorage.getItem('theme');
-        if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){
-          document.documentElement.classList.add('dark');
-        }
-      })();
-    </script>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://ojt-dtr-seven.vercel.app/" />
+  <meta property="og:title" content="OJT DTR System — CvSU Imus" />
+  <meta property="og:description"
+    content="Daily Time Record (DTR) system for OJT students of Cavite State University – Imus Campus. Track time-in, time-out, and generate printable DTR reports." />
+  <meta property="og:image" content="https://ojt-dtr-seven.vercel.app/cvsu-logo.png" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="OJT DTR System — CvSU Imus" />
+  <meta name="twitter:description"
+    content="Daily Time Record (DTR) system for OJT students of Cavite State University – Imus Campus. Track time-in, time-out, and generate printable DTR reports." />
+  <meta name="twitter:image" content="https://ojt-dtr-seven.vercel.app/cvsu-logo.png" />
+</head>
+
+<body>
+  <script>
+    (function () {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>
