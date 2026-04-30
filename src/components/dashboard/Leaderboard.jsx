@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { TrendingUp } from 'lucide-react'
+import { Zap, Calendar, Award } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { calculateProgress, calcEstimatedCompletion } from '../../lib/calculations'
 
@@ -114,11 +114,17 @@ export default function Leaderboard({ refresh = 0 }) {
 
   return (
     <div ref={containerRef} className="dash-panel flex flex-col p-4">
-      <div className="mb-3 flex items-center gap-2">
-        <TrendingUp size={16} className="text-[var(--dash-accent)]" />
-        <h3 className="dash-section-title text-sm">
-          Top Students
-        </h3>
+      {/* Header */}
+      <div className="mb-4 pb-3 border-b border-[var(--dash-border)]">
+        <div className="flex items-center gap-2 mb-1">
+          <Zap size={18} className="text-yellow-500" />
+          <h3 className="dash-section-title text-sm font-bold">
+            OJT HOUR COMPLETION
+          </h3>
+        </div>
+        <p className="text-xs text-[var(--dash-muted)]">
+          Top students closest to finishing their training hours
+        </p>
       </div>
 
       {loading ? (
@@ -133,25 +139,47 @@ export default function Leaderboard({ refresh = 0 }) {
             <div
               key={student.id}
               ref={(el) => (rowsRef.current[i] = el)}
-              className="flex items-center justify-between gap-2 rounded-lg border border-[var(--dash-border)] bg-white/65 p-2 text-xs transition-colors hover:bg-emerald-500/10 dark:bg-slate-700/55"
+              className="rounded-lg border border-[var(--dash-border)] bg-gradient-to-r from-white/70 to-white/50 dark:from-slate-700/70 dark:to-slate-700/40 p-3 transition-all hover:shadow-md hover:from-emerald-500/15 hover:to-emerald-400/10 dark:hover:from-emerald-500/20 dark:hover:to-emerald-400/15"
             >
-              {/* Rank Badge */}
-              <div className={`flex items-center justify-center w-6 h-6 rounded-full font-bold shrink-0 text-xs ${getRankBadgeColor(student.rank)}`}>
-                {getRankLabel(student.rank)}
+              {/* Rank Badge & Name */}
+              <div className="flex items-center gap-2 mb-2">
+                <div className={`flex items-center justify-center w-8 h-8 rounded-full font-bold shrink-0 text-sm ${getRankBadgeColor(student.rank)}`}>
+                  {getRankLabel(student.rank)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-green-900 dark:text-green-100 text-xs truncate">
+                    {student.full_name.toUpperCase()}
+                  </p>
+                </div>
               </div>
 
-              {/* Student Name */}
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-green-900 dark:text-green-100 text-xs truncate">
-                  {student.full_name}
-                </p>
-              </div>
+              {/* Progress Bar & Stats */}
+              <div className="space-y-1">
+                {/* Progress Meter */}
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <div className="flex-1">
+                    <div className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-green-500 to-emerald-600 transition-all"
+                        style={{ width: `${Math.min(student.progress.percent, 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-[var(--dash-accent)] whitespace-nowrap">
+                    {student.progress.percent}%
+                  </span>
+                </div>
 
-              {/* Progress % */}
-              <div className="text-right shrink-0">
-                <p className="text-xs font-bold text-[var(--dash-accent)]">
-                  {student.progress.percent}%
-                </p>
+                {/* Hours & Estimated Completion */}
+                <div className="flex items-center justify-between text-xs text-[var(--dash-muted)]">
+                  <span>{student.total_hours_rendered || 0}h / {student.total_required_hours || 0}h</span>
+                  <div className="flex items-center gap-1">
+                    <Calendar size={12} />
+                    <span className={student.estCompletion === 'Completed!' ? 'text-green-600 dark:text-green-400 font-bold' : ''}>
+                      {student.estCompletion}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
@@ -160,7 +188,7 @@ export default function Leaderboard({ refresh = 0 }) {
 
       {leaders.length > 8 && (
         <p className="mt-2 border-t border-[var(--dash-border)] pt-2 text-center text-xs text-[var(--dash-muted)]">
-          +{leaders.length - 8} more
+          +{leaders.length - 8} more students
         </p>
       )}
     </div>
